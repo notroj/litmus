@@ -55,7 +55,7 @@ all: $(TESTS)
 	@echo ""
 
 litmus: litmus.in
-	@./config.status litmus
+	@./config.status $@
 
 check: $(TESTS) litmus
 	@test -d "$(DIR)" || mkdir "$(DIR)"
@@ -93,14 +93,19 @@ largefile: src/largefile.o $(ODEPS)
 	$(CC) $(LDFLAGS) -o $@ src/largefile.o $(ALL_LIBS)
 
 subdirs:
-	(cd lib/neon && $(MAKE)) || exit 1
+	@cd lib/neon && $(MAKE)
 
 libtest.a: $(TESTOBJS)
 	$(AR) cru $@ $(TESTOBJS)
 	$(RANLIB) $@
 
-clean:
-	rm -f */*.o $(TESTS) libtest.a
+clean:	
+	@cd lib/neon && $(MAKE) clean
+	rm -f */*.o $(TESTS) largefile libtest.a *~ debug.log child.log
+
+distclean: clean
+	@cd lib/neon && $(MAKE) distclean
+	rm Makefile litmus config.log config.h config.status
 
 .c.o:
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
