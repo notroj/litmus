@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <assert.h>
+#include <string.h>
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
@@ -60,13 +61,13 @@ static int init_largefile(void)
     for (n = 0; n < BLOCKSIZE; n++)
         block[n] = n % 256;
 
+    /* upload a random file to prep auth if necessary. */
+    CALL(upload_foo("random.txt"));
+
     path = ne_concat(i_path, "large.txt", NULL);
 
     /* don't log a message for each body block! */
     ne_debug_init(ne_debug_stream, ne_debug_mask & ~(NE_DBG_HTTPBODY|NE_DBG_HTTP));
-
-    /* don't use persistent connections, to prevent a retry. */
-    ne_set_persist(i_session, 0);
 
     return OK;
 }
