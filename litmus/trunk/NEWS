@@ -1,3 +1,7 @@
+Changes in version 0.10.2:
+* Fix build on Mac OS X.
+* Fixes for the "largefile" test suite.
+
 Changes in version 0.10.1:
 * Add check for DELETE safety with #fragment in Request-URI.
 

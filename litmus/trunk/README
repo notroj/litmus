@@ -45,10 +45,10 @@ username/password.  For instance:
  or  litmus http://dav.server.url/path/ jim 2518
 
 litmus is licensed under the GNU GPL; see COPYING for full details.
-litmus is (C) 2001-2003 Joe Orton
+litmus is (C) 2001-2005 Joe Orton
 
 neon is licensed under the GNU LGPL; see libneon/COPYING.LIB for details.
-neon is (C) 1999-2003 Joe Orton and others.
+neon is (C) 1999-2005 Joe Orton and others.
 
 Please send bug reports, feature requests, etc. in to the neon mailing
 list at litmus@webdav.org.

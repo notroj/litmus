@@ -1,10 +1,10 @@
 dnl autoconf script for litmus
 
-AC_INIT(litmus, 0.10.1, litmus@webdav.org)
+AC_INIT(litmus, 0.10.2, litmus@webdav.org)
 
-AC_PREREQ(2.50)
+AC_PREREQ(2.59)
 
-AC_COPYRIGHT([Copyright (c) 2001-2004 Joe Orton
+AC_COPYRIGHT([Copyright (c) 2001-2005 Joe Orton and others
 This configure script may be copied, distributed and modified under the 
 terms of the GNU General Public license; see COPYING for more details])
 
