@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2001-2002 Joe Orton
+# Copyright (c) 2001-2005 Joe Orton <litmus@webdav.org>
 
 prefix=@prefix@
 exec_prefix=@prefix@
@@ -27,6 +27,7 @@ Significant environment variables:
     \$TESTROOT  - specify alternate program directory
         default: @libexecdir@/litmus
 
+Feedback to <litmus@webdav.org>.
 EOF
     exit 1
 }
@@ -36,6 +37,7 @@ nofail=0
 case $1 in
 --help|-h) usage ;;
 --keep-going|-k) nofail=1; shift ;;
+--version) echo litmus @PACKAGE_VERSION@; exit 0 ;;
 esac
 
 test "$#" = "0" && usage
