@@ -1,6 +1,6 @@
 /* 
    litmus: WebDAV server test suite
-   Copyright (C) 2001-2002, 2004, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2001-2005, Joe Orton <joe@manyfish.co.uk>
                                                                      
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 #endif
 
 #include "common.h"
+
+#define EOL "\r\n"
 
 #define ONS(str, x) do {					\
     if ((x) < 0) {						\
