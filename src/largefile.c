@@ -63,7 +63,7 @@ static int init_largefile(void)
     path = ne_concat(i_path, "large.txt", NULL);
 
     /* don't log a message for each body block! */
-    ne_debug_init(ne_debug_stream, ne_debug_mask & ~NE_DBG_HTTPBODY);
+    ne_debug_init(ne_debug_stream, ne_debug_mask & ~(NE_DBG_HTTPBODY|NE_DBG_HTTP));
 
     /* don't use persistent connections, to prevent a retry. */
     ne_set_persist(i_session, 0);
@@ -110,11 +110,38 @@ static int large_put(void)
     return OK;
 }
 
+static int large_get(void)
+{
+    ne_request *req = ne_request_create(i_session, "GET", path);
+    char buffer[BLOCKSIZE], origin[BLOCKSIZE * 2];
+    long long progress = 0;
+    ssize_t offset = 0;
+    ssize_t bytes;
+
+    memcpy(origin, block, BLOCKSIZE);
+    memcpy(origin + BLOCKSIZE, block, BLOCKSIZE);
+
+    ONNREQ("begin large GET request", ne_begin_request(req));
+
+    while ((bytes = ne_read_response_block(req, buffer, BLOCKSIZE)) > 0) {
+        ONV(memcmp(origin + offset, buffer, bytes),
+            ("byte mismatch at %" NE_FMT_LONG_LONG, progress));
+        offset = (offset + bytes) % BLOCKSIZE;
+        progress += bytes;
+    }
+
+    ONNREQ("end large GET request", ne_end_request(req));
+
+    ne_request_destroy(req);
+    return OK;
+}
+
 ne_test tests[] = {
     INIT_TESTS,
     T(init_largefile),
 
     T(large_put),    
+    T(large_get),
 
     FINISH_TESTS
 };
