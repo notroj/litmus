@@ -367,13 +367,11 @@ int options(void)
 char *get_etag(const char *path)
 {
     ne_request *req = ne_request_create(i_session, "HEAD", path);
-    char *etag = NULL;
+    const char *etag = NULL;
 
-    ne_add_response_header_handler(req, "etag", ne_duplicate_header, &etag);
-
-    if (ne_request_dispatch(req) || ne_get_status(req)->code != 200)
-        etag = NULL;
+    if (ne_request_dispatch(req) == NE_OK && ne_get_status(req)->code == 200) 
+        etag = ne_get_response_header(req, "Etag");
     
     ne_request_destroy(req);
-    return etag;
+    return etag ? ne_strdup(etag) : NULL;
 }
