@@ -32,6 +32,7 @@ dnl Check for getopt_long
 AC_CHECK_FUNC(getopt_long,,[AC_LIBOBJ(lib/getopt)
 AC_LIBOBJ(lib/getopt1)])
 
+NEON_FORMAT(long long)
 NEON_DEBUG
 NEON_WARNINGS
 
