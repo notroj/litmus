@@ -82,7 +82,7 @@ static ssize_t provider(void *userdata, char *buffer, size_t buflen)
 
     assert(buflen == BLOCKSIZE);
 
-    if (*count++ < NUMBLOCKS) {
+    if ((*count)++ < NUMBLOCKS) {
         memcpy(buffer, block, BLOCKSIZE);
         return buflen;
     }        
