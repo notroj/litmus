@@ -93,7 +93,7 @@ largefile: src/largefile.o $(ODEPS)
 	$(CC) $(LDFLAGS) -o $@ src/largefile.o $(ALL_LIBS)
 
 subdirs:
-	(cd libneon && $(MAKE)) || exit 1
+	(cd lib/neon && $(MAKE)) || exit 1
 
 libtest.a: $(TESTOBJS)
 	$(AR) cru $@ $(TESTOBJS)

@@ -24,8 +24,8 @@ NEON_REQUIRE(0,25)
 NEON_WITHOUT_ZLIB
 NEON_WITHOUT_ACL
 NEON_TEST
-NEON_VPATH_BUNDLED(['$(top_srcdir)/libneon'], [libneon], [NEON_NORMAL_BUILD()
-NEON_XML_PARSER([\$(top_builddir)/expat])
+NEON_VPATH_BUNDLED(['$(top_srcdir)/lib/neon'], [lib/neon], [NEON_NORMAL_BUILD()
+NEON_XML_PARSER([\$(top_builddir)/lib/expat])
 ])
 
 dnl Check for getopt_long
@@ -38,7 +38,7 @@ NEON_WARNINGS
 CPPFLAGS="$CPPFLAGS -I\${top_builddir} -I\$(top_srcdir)/lib"
 
 AC_CONFIG_FILES([litmus], [chmod +x litmus])
-AC_CONFIG_FILES([Makefile libneon/Makefile])
+AC_CONFIG_FILES([Makefile lib/neon/Makefile])
 
 AC_OUTPUT
 
@@ -53,6 +53,6 @@ AC_MSG_NOTICE([Configured to build AC_PACKAGE_STRING:
 Now run 'make' to compile the test suite.])
 
 # For VPATH builds
-for d in lib libneon test-common src; do
+for d in lib lib/expat lib/neon test-common src; do
 	test -d $d || mkdir $d
 done
