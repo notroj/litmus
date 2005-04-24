@@ -72,7 +72,7 @@ install: $(TESTS) litmus
 	for t in $(TESTS); do \
 	  $(INSTALL_PROGRAM) $(top_builddir)/$$t $(DESTDIR)$(libexecdir)/litmus/$$t; done
 	for d in $(HTDOCS); do \
-	  $(INSTALL_DATA) $(top_builddir)/htdocs/$$d $(DESTDIR)$(datadir)/litmus/htdocs/$d; done
+	  $(INSTALL_DATA) $(top_srcdir)/htdocs/$$d $(DESTDIR)$(datadir)/litmus/htdocs/$d; done
 
 props: src/props.o $(ODEPS)
 	$(CC) $(LDFLAGS) -o $@ src/props.o $(ALL_LIBS)
