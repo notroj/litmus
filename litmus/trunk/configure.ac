@@ -1,6 +1,6 @@
 dnl autoconf script for litmus
 
-AC_INIT(litmus, 0.10.2, litmus@webdav.org)
+AC_INIT(litmus, 0.10.3, litmus@webdav.org)
 
 AC_PREREQ(2.59)
 
@@ -20,7 +20,7 @@ AC_PROG_INSTALL
 dnl List of tests
 AC_SUBST([TESTS], ["basic copymove props locks http"])
 
-NEON_REQUIRE(0,25)
+NE_REQUIRE_VERSIONS([0], [25])
 NEON_WITHOUT_ZLIB
 NEON_WITHOUT_ACL
 NEON_TEST
@@ -50,8 +50,7 @@ AC_MSG_NOTICE([Configured to build AC_PACKAGE_STRING:
   neon library:    ${neon_library_message}
   XML parser:      ${neon_xml_parser_message}
   SSL library:     ${ne_SSL_message}
- 
-Now run 'make' to compile the test suite.])
+])
 
 # For VPATH builds
 for d in lib lib/expat lib/neon test-common src; do
