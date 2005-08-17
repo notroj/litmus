@@ -1,6 +1,6 @@
 dnl autoconf script for litmus
 
-AC_INIT(litmus, 0.10.3, litmus@webdav.org)
+AC_INIT(litmus, 0.10.4, litmus@webdav.org)
 
 AC_PREREQ(2.59)
 
@@ -25,7 +25,7 @@ NEON_WITHOUT_ZLIB
 NEON_WITHOUT_ACL
 NEON_TEST
 NEON_VPATH_BUNDLED(['$(top_srcdir)/lib/neon'], [lib/neon], [NEON_NORMAL_BUILD()
-NEON_XML_PARSER([\$(top_builddir)/lib/expat])
+NEON_XML_PARSER([\$(top_srcdir)/lib/expat], [\$(top_builddir)/lib/expat])
 ])
 
 dnl Check for getopt_long
