@@ -1,6 +1,6 @@
 dnl autoconf script for litmus
 
-AC_INIT(litmus, 0.10.4, litmus@webdav.org)
+AC_INIT(litmus, 0.10.3, litmus@webdav.org)
 
 AC_PREREQ(2.59)
 
@@ -54,5 +54,5 @@ AC_MSG_NOTICE([Configured to build AC_PACKAGE_STRING:
 
 # For VPATH builds
 for d in lib lib/expat lib/neon test-common src; do
-	test -d $d || mkdir $d
+    test -d $d || mkdir $d
 done
