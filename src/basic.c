@@ -1,6 +1,6 @@
 /* 
    litmus: WebDAV server test suite
-   Copyright (C) 2001-2004, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2001-2005, Joe Orton <joe@manyfish.co.uk>
                                                                      
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -107,10 +107,14 @@ static char *create_temp(const char *contents)
 {
     char tmp[256] = "/tmp/litmus-XXXXXX";
     int fd;
+    size_t len = strlen(contents);
     
     fd = mkstemp(tmp);
     BINARYMODE(fd);
-    write(fd, contents, strlen(contents));
+    if (write(fd, contents, len) != (ssize_t)len) {
+        close(fd);
+        return NULL;
+    }        
     close(fd);
 
     return ne_strdup(tmp);
@@ -159,7 +163,8 @@ static int do_put_get(const char *segment)
     int fd, res;
     
     fn = create_temp(test_contents);
-    
+    ONN("could not create temporary file", fn == NULL);        
+
     uri = ne_concat(i_path, segment, NULL);
 
     fd = open(fn, O_RDONLY | O_BINARY);
@@ -181,6 +186,7 @@ static int do_put_get(const char *segment)
     res = compare_contents(tmp, test_contents);
     if (res != OK) {
 	char cmd[1024];
+
 	ne_snprintf(cmd, 1024, "diff -u %s %s", fn, tmp);
 	system(cmd);
 	ONN("PUT/GET byte comparison", res);
