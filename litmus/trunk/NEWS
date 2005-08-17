@@ -1,3 +1,8 @@
+Changes in version 0.10.3:
+* Fix VPATH builds (Mike Castle).
+* Fix build with bundled expat.
+* Update to neon 0.25.2.
+
 Changes in version 0.10.2:
 * Fix build on Mac OS X.
 * Fixes for the "largefile" test suite.
