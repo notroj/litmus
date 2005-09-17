@@ -266,7 +266,6 @@ static void verify_discover(void *userdata, const struct ne_lock *lock,
     }
  
     if (lock) {
-        //((struct ne_lock *)lock)->token = NULL;
         *ret = compare_locks(gotlock, lock);
     } else {
 	*ret = 1;
