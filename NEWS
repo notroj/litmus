@@ -1,3 +1,7 @@
+Changes in version 0.10.4:
+* Fix possible crashes in lock discovery.
+* Update to neon 0.25.3.
+
 Changes in version 0.10.3:
 * Fix VPATH builds (Mike Castle).
 * Fix build with bundled expat.
