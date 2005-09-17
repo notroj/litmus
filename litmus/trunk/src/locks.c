@@ -1,6 +1,6 @@
 /* 
    litmus: WebDAV server test suite
-   Copyright (C) 2001-2004, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2001-2005, Joe Orton <joe@manyfish.co.uk>
                                                                      
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -246,6 +246,14 @@ static int copy(void)
     return OK;
 }
 
+/* Compare locks, expected EXP, actual ACT. */
+static int compare_locks(const struct ne_lock *exp, const struct ne_lock *act)
+{
+    ONCMP(exp->token, act->token, "compare discovered lock", "token");
+    ONCMP(exp->owner, act->owner, "compare discovered lock", "owner");
+    return OK;
+}
+
 /* check that the lock returned has correct URI, token */
 static void verify_discover(void *userdata, const struct ne_lock *lock,
 			    const char *uri, const ne_status *status)
@@ -256,19 +264,10 @@ static void verify_discover(void *userdata, const struct ne_lock *lock,
 	/* already failed. */
 	return;
     }
-
-    /* for field 'f', fail if discovered value differs from known
-     * value. */
-#define VERCMP(f, name) \
-do { if (strcmp(lock->f, gotlock->f)) { \
-t_context("discovered lock " name " differs: %s vs %s", lock->f, gotlock->f); \
-*ret = 1; } } while (0)
  
     if (lock) {
-
-	VERCMP(token, "token");
-	VERCMP(owner, "owner");
-
+        //((struct ne_lock *)lock)->token = NULL;
+        *ret = compare_locks(gotlock, lock);
     } else {
 	*ret = 1;
 	t_context("failed: %d %s\n", status->code, status->reason_phrase);
