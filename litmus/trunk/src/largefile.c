@@ -104,7 +104,7 @@ static int large_put(void)
     
     ret = ne_request_dispatch(req);
 
-    ONNREQ("large PUT request", ret);
+    ONNREQ("large PUT request", ret || ne_get_status(req)->klass != 2);
 
     ne_request_destroy(req);
 
@@ -132,6 +132,8 @@ static int large_get(void)
         offset = (offset + bytes) % BLOCKSIZE;
         progress += bytes;
     }
+
+    ONNREQ("failed reading GET response", bytes < 0);
 
     ONNREQ("end large GET request", ne_end_request(req));
 
