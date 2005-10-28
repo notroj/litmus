@@ -1,6 +1,6 @@
 /* 
    Litmus tests for large file support
-   Copyright (C) 2004, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2004, 2005, Joe Orton <joe@manyfish.co.uk>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -123,6 +123,8 @@ static int large_get(void)
     memcpy(origin + BLOCKSIZE, block, BLOCKSIZE);
 
     ONNREQ("begin large GET request", ne_begin_request(req));
+
+    ONNREQ("failed GET request", ne_get_status(req)->klass != 2);
 
     while ((bytes = ne_read_response_block(req, buffer, BLOCKSIZE)) > 0) {
         ONV(memcmp(origin + offset, buffer, bytes),
