@@ -380,6 +380,26 @@ static int fail_cond_put(void)
     return OK;
 }
 
+/* PUT conditional on bogus lock-token and valid etag, should fail. */
+static int fail_cond_put_unlocked(void)
+{
+    int klass, code;
+
+    CALL(conditional_put("(<DAV:no-lock>)", &klass, &code));
+
+    ONV(klass == 2,
+        ("conditional PUT with invalid lock-token should fail: %s",
+         ne_get_error(i_session)));
+
+    ONN("conditional PUT with invalid lock-token code got 400", code == 400);
+
+    if (code != 412) 
+	t_warning("PUT failed with %d not 412", code);
+
+    return OK;
+}
+
+
 /* PUT conditional on real lock-token and not(bogus lock-token),
  * should succeed. */
 static int cond_put_with_not(void)
@@ -549,6 +569,8 @@ ne_test tests[] = {
     T(fail_complex_cond_put),
 
     T(unlock),
+
+    T(fail_cond_put_unlocked),
 
     /* now try it all again with a shared lock. */
     T(lock_shared),
