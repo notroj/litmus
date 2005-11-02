@@ -1,3 +1,7 @@
+Changes in version 0.10.5:
+* Add another test for handling of unknown state tokens in an If: header.
+* Update to neon 0.25.4.
+
 Changes in version 0.10.4:
 * Fix possible crashes in lock discovery.
 * Update to neon 0.25.3.
