@@ -20,7 +20,7 @@ AC_PROG_INSTALL
 dnl List of tests
 AC_SUBST([TESTS], ["basic copymove props locks http"])
 
-NE_REQUIRE_VERSIONS([0], [25])
+NE_REQUIRE_VERSIONS([0], [25 26])
 NEON_WITHOUT_ZLIB
 NEON_WITHOUT_ACL
 NEON_TEST
