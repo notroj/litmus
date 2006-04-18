@@ -473,6 +473,48 @@ static int prophighunicode(void)
     return OK;
 }
 
+/* Test whether PROPPATCH is processed in document order (1/2). */
+static int propremoveset(void)
+{
+    PRECOND(prop_ok);
+
+    numprops = 1;
+    removedprops = 0;
+
+    propnames[0].nspace = NS;
+    propnames[0].name = "removeset";
+    values[0] = "x";
+ 
+    CALL(do_patch("PROPPATCH remove then set",
+		  XML_DECL "<propertyupdate xmlns='DAV:'>"
+      "<remove><prop><removeset xmlns='" NS "'/></prop></remove>"
+      "<set><prop><removeset xmlns='" NS "'>x</removeset></prop></set>"
+      "</propertyupdate>"));
+
+    return OK;
+}
+
+/* Test whether PROPPATCH is processed in document order (2/2). */
+static int propsetremove(void)
+{
+    PRECOND(prop_ok);
+
+    numprops = 1;
+    removedprops = 0;
+
+    propnames[0].nspace = NS;
+    propnames[0].name = "removeset";
+    values[0] = NULL;
+ 
+    CALL(do_patch("PROPPATCH remove then set",
+		  XML_DECL "<propertyupdate xmlns='DAV:'>"
+      "<set><prop><removeset xmlns='" NS "'>x</removeset></prop></set>"
+      "<remove><prop><removeset xmlns='" NS "'/></prop></remove>"
+      "</propertyupdate>"));
+
+    return OK;
+}
+
 /* regression test for Apache bug #15728. */
 static int propvalnspace(void)
 {
@@ -561,6 +603,8 @@ ne_test tests[] =
     T(propreplace), T(propget),
     T(propnullns), T(propget),
     T(prophighunicode), T(propget),
+    T(propremoveset), T(propget),
+    T(propsetremove), T(propget),
     T(propvalnspace), T(propwformed),
     
     T(propinit),
