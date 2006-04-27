@@ -1,6 +1,6 @@
 /* 
    litmus: DAV server test suite
-   Copyright (C) 2001-2004, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2001-2006, Joe Orton <joe@manyfish.co.uk>
                                                                      
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -483,12 +483,13 @@ static int propremoveset(void)
 
     propnames[0].nspace = NS;
     propnames[0].name = "removeset";
-    values[0] = "x";
+    values[0] = "y";
  
     CALL(do_patch("PROPPATCH remove then set",
 		  XML_DECL "<propertyupdate xmlns='DAV:'>"
       "<remove><prop><removeset xmlns='" NS "'/></prop></remove>"
       "<set><prop><removeset xmlns='" NS "'>x</removeset></prop></set>"
+      "<set><prop><removeset xmlns='" NS "'>y</removeset></prop></set>"
       "</propertyupdate>"));
 
     return OK;
