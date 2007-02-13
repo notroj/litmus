@@ -86,6 +86,9 @@ static void d0_results(void *userdata, const char *uri,
 	    return;
 	}
     }
+    else {
+        path = uri;
+    }
 #else
     path = uri->path;
 #endif
