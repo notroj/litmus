@@ -1,6 +1,6 @@
 /* 
    litmus: WebDAV server test suite
-   Copyright (C) 2001-2002, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2001-2002, 2007, Joe Orton <joe@manyfish.co.uk>
                                                                      
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ static int copy_simple(void)
 	   ne_copy(i_session, 0, NE_DEPTH_INFINITE, src, dest));
 
     if (STATUS(201)) {
-	t_warning("COPY to new resource didn't give 201");
+	t_warning("COPY to new resource should give 201 (RFC2518:S8.8.5)");
     }
 
     return OK;
@@ -70,7 +70,7 @@ static int copy_overwrite(void)
     PRECOND(copy_ok);
 
     /* Do it again with Overwrite: F to check that fails. */
-    ONN("COPY on existing resource with Overwrite: F",
+    ONN("COPY on existing resource with Overwrite: F should fail (RFC2518:S8.8.4)",
 	ne_copy(i_session, 0, NE_DEPTH_INFINITE, src, dest) != NE_ERROR);
 
     if (STATUS(412)) {
@@ -78,7 +78,7 @@ static int copy_overwrite(void)
     }
     
     ONV(ne_copy(i_session, 1, NE_DEPTH_INFINITE, src, dest),
-	("COPY-on-existing with 'Overwrite: T': %s", ne_get_error(i_session)));
+	("COPY-on-existing with 'Overwrite: T' should succeed (RFC2518:S8.8.4): %s", ne_get_error(i_session)));
 
     /* tricky one this, I didn't think it should work, but the spec
      * makes it look like it should. */
@@ -86,7 +86,7 @@ static int copy_overwrite(void)
 	("COPY overwrites collection: %s", ne_get_error(i_session)));
     
     if (STATUS(204)) {
-	t_warning("COPY to existing resource didn't give 204");
+	t_warning("COPY to existing resource didn't give 204 (RFC2518:S8.8.5)");
     }
 
     return OK;
@@ -105,7 +105,8 @@ static int copy_nodestcoll(void)
         ("COPY into non-existant collection '%snonesuch' succeeded", i_path));
 
     if (STATUS(409)) {
-        t_warning("COPY to non-existant collection '%snonesuch' gave '%s' not 409",
+        t_warning("COPY to non-existant collection '%snonesuch' gave '%s' not 409"
+                  " (RFC2518:S8.8.5)",
                   i_path, ne_get_error(i_session));
     }
 
