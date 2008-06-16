@@ -4,7 +4,7 @@ AC_INIT(litmus, 0.11, litmus@webdav.org)
 
 AC_PREREQ(2.59)
 
-AC_COPYRIGHT([Copyright (c) 2001-2005 Joe Orton and others
+AC_COPYRIGHT([Copyright (c) 2001-2008 Joe Orton and others
 This configure script may be copied, distributed and modified under the 
 terms of the GNU General Public license; see COPYING for more details])
 
@@ -20,7 +20,7 @@ AC_PROG_INSTALL
 dnl List of tests
 AC_SUBST([TESTS], ["basic copymove props locks http"])
 
-NE_REQUIRE_VERSIONS([0], [25 26])
+NE_REQUIRE_VERSIONS([0], [25 26 27 28])
 NEON_WITHOUT_ZLIB
 NEON_WITHOUT_ACL
 NEON_TEST
