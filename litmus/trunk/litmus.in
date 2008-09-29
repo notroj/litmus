@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2001-2005 Joe Orton <litmus@webdav.org>
+# Copyright (c) 2001-2005, 2008 Joe Orton <litmus@lists.manyfish.co.uk>
 
 prefix=@prefix@
 exec_prefix=@prefix@
