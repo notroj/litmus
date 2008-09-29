@@ -1,6 +1,6 @@
 /* 
    litmus: WebDAV server test suite
-   Copyright (C) 2001-2005, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2001-2007, Joe Orton <joe@manyfish.co.uk>
                                                                      
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -212,6 +212,22 @@ static int put_get_utf8_segment(void)
     return do_put_get("res-%e2%82%ac");
 }
 
+static int put_no_parent(void)
+{
+    char *uri = ne_concat(i_path, "409me/noparent.txt", NULL);
+    ONN("MKCOL with missing intermediate succeeds",
+	ne_mkcol(i_session, uri) != NE_ERROR);
+    
+    if (STATUS(409)) {
+	t_warning("MKCOL with missing intermediate gave %d, should be 409",
+		  GETSTATUS);
+    }
+
+    ne_free(uri);
+
+    return OK;
+}
+
 static int mkcol_over_plain(void)
 {
     PRECOND(pg_uri);
@@ -241,7 +257,7 @@ static int delete_null(void)
 	ne_delete(i_session, uri) != NE_ERROR);
 
     if (STATUS(404)) {
-	t_warning("DELETE on null resource gave %d, should be 404",
+	t_warning("DELETE on null resource gave %d, should be 404 (RFC2518:S3)",
 		  GETSTATUS);
     }
 
@@ -284,11 +300,11 @@ static int mkcol_again(void)
 {
     PRECOND(coll_uri);
 
-    ONN("MKCOL on existing collection succeeds",
+    ONN("MKCOL on existing collection should fail (RFC2518:8.3.1)",
 	ne_mkcol(i_session, coll_uri) != NE_ERROR);
 
     if (STATUS(405)) {
-	t_warning("MKCOL on existing collection gave %d, should be 405",
+	t_warning("MKCOL on existing collection gave %d, should be 405 (RFC2518:8.3.2)",
 		  GETSTATUS);
     }
     
@@ -312,11 +328,11 @@ static int mkcol_no_parent(void)
 
     uri = ne_concat(i_path, "409me/noparent/", NULL);
 
-    ONN("MKCOL with missing intermediate succeeds",
+    ONN("MKCOL with missing intermediate should fail (RFC2518:8.3.1)",
 	ne_mkcol(i_session, uri) != NE_ERROR);
     
     if (STATUS(409)) {
-	t_warning("MKCOL with missing intermediate gave %d, should be 409",
+	t_warning("MKCOL with missing intermediate gave %d, should be 409 (RFC2518:8.3.1)",
 		  GETSTATUS);
     }
 
@@ -362,6 +378,7 @@ ne_test tests[] = {
     T(options),
     T(put_get),
     T(put_get_utf8_segment),
+    T(put_no_parent),
     T(mkcol_over_plain),
     T(delete),
     T(delete_null),
