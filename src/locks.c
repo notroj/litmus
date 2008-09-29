@@ -545,6 +545,29 @@ static int indirect_refresh(void)
     return OK;    
 }
 
+/* lock on unmapped url should return 201 */
+static int unmapped_lock(void)
+{
+    if (gotlock) {
+        ne_lock_destroy(gotlock);
+        gotlock = NULL;
+    }
+    ne_free(res);
+
+    res = ne_concat(i_path, "unmapped_url", NULL);
+
+    ONV(getlock(ne_lockscope_exclusive, NE_DEPTH_ZERO),
+        ("LOCK on %s via %s: %s",
+         coll, res, ne_get_error(i_session)));
+
+    if (STATUS(201)) 
+	t_warning("LOCK on unmapped url returned %d not 201 (RFC5918:S7.3)", GETSTATUS);
+
+    ne_delete(i_session, res);
+
+    return OK;
+}
+
 ne_test tests[] = {
     INIT_TESTS,
 
@@ -601,6 +624,10 @@ ne_test tests[] = {
     T(owner_modify), T(notowner_modify),
     T(refresh), 
     T(indirect_refresh),
+    T(unlock),
+
+    /* lock on a unmapped url */
+    T(unmapped_lock),
     T(unlock),
 
     FINISH_TESTS
