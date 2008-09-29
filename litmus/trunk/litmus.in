@@ -5,6 +5,7 @@ prefix=@prefix@
 exec_prefix=@prefix@
 libexecdir=@libexecdir@
 datadir=@datadir@
+datarootdir=@datarootdir@
 
 HTDOCS=${HTDOCS-"@datadir@/litmus/htdocs"}
 TESTROOT=${TESTROOT-"@libexecdir@/litmus"}
