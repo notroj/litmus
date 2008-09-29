@@ -1,3 +1,11 @@
+Changes in version 0.12:
+* New tests:
+ - props: unmapped_lock (Henrik Holst)
+ - basic: put_no_parent
+* Changed tests:
+ - props: propvalnspace - use a valid URI in the 'foo' element
+* Update to neon 0.28.3; support neon 0.25.x->0.28.x
+
 Changes in version 0.11:
 * New tests from Julian Reschke:
  - props: test for correct PROPPATCH propertyupdate evaluation order
