@@ -537,7 +537,7 @@ static int propvalnspace(void)
 
     CALL(do_patch("PROPPATCH of property with value defining namespace",
                   XML_DECL "<propertyupdate xmlns='DAV:'><set><prop>"
-                  "<t:valnspace xmlns:t='" NS "'><foo xmlns='bar'/></t:valnspace>"
+                  "<t:valnspace xmlns:t='" NS "'><foo xmlns='http://bar'/></t:valnspace>"
                   "</prop></set></propertyupdate>"));
 
     return OK;
