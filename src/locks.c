@@ -561,7 +561,7 @@ static int unmapped_lock(void)
          coll, res, ne_get_error(i_session)));
 
     if (STATUS(201)) 
-	t_warning("LOCK on unmapped url returned %d not 201 (RFC5918:S7.3)", GETSTATUS);
+	t_warning("LOCK on unmapped url returned %d not 201 (RFC4918:S7.3)", GETSTATUS);
 
     ne_delete(i_session, res);
 
