@@ -562,8 +562,11 @@ static int propextended(void)
 }
 
 static const char *manyns[10] = {
-    "alpha", "beta", "gamma", "delta", "epsilon", 
-    "zeta", "eta", "theta", "iota", "kappa"
+    "http://example.com/alpha", "http://example.com/beta", 
+    "http://example.com/gamma", "http://example.com/delta", 
+    "http://example.com/epsilon", "http://example.com/zeta", 
+    "http://example.com/eta", "http://example.com/theta", 
+    "http://example.com/iota", "http://example.com/kappa"
 };    
 
 static int propmanyns(void)
