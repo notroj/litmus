@@ -27,7 +27,7 @@
 
 #include "common.h"
 
-#define NS "http://webdav.org/neon/litmus/"
+#define NS "http://example.com/neon/litmus/"
 
 #define NSPACE(x) ((x) ? (x) : "")
 
