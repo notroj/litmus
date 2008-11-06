@@ -82,6 +82,15 @@ static int getlock(enum ne_lock_scope scope, int depth)
 
     ONMREQ("LOCK", res, ne_lock(i_session, &reslock));
     
+    if (scope != reslock.scope) {
+        t_context("requested lockscope not satisfied!  got %s, wanted %s",
+                  scope == ne_lockscope_exclusive ? "exclusive" : "shared",
+                  reslock.scope == ne_lockscope_exclusive ? 
+                  "exclusive" : "shared");
+        ne_unlock(i_session, &reslock);
+        return FAIL;
+    }    
+
     /* Take a copy of the lock. */
     gotlock = ne_lock_copy(&reslock);
     ne_lockstore_add(store, gotlock);
