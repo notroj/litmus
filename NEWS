@@ -1,3 +1,9 @@
+Changes in versino 0.12.1:
+* Changed tests:
+ - locks: remove UNLOCK from unmapped_lock's LOCK/DELETE/UNLOCK sequence
+ - locks: fail if LOCK gives a lockscope which does not match that requested
+ - props: use real URIs for the property namespaces
+
 Changes in version 0.12:
 * New tests:
  - props: unmapped_lock (Henrik Holst)
