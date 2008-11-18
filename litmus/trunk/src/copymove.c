@@ -73,9 +73,8 @@ static int copy_overwrite(void)
     ONN("COPY on existing resource with Overwrite: F should fail (RFC2518:S8.8.4)",
 	ne_copy(i_session, 0, NE_DEPTH_INFINITE, src, dest) != NE_ERROR);
 
-    if (STATUS(412)) {
-	t_warning("COPY-on-existing fails with 412");
-    }
+    ONNREQ("COPY-on-existing with 'Overwrite: F' MUST fail with 412 "
+           "(RFC4918:10.6)", STATUS(412));
     
     ONV(ne_copy(i_session, 1, NE_DEPTH_INFINITE, src, dest),
 	("COPY-on-existing with 'Overwrite: T' should succeed (RFC2518:S8.8.4): %s", ne_get_error(i_session)));
@@ -86,7 +85,8 @@ static int copy_overwrite(void)
 	("COPY overwrites collection: %s", ne_get_error(i_session)));
     
     if (STATUS(204)) {
-	t_warning("COPY to existing resource didn't give 204 (RFC2518:S8.8.5)");
+	t_warning("COPY to existing resource should give 204 (RFC2518:S8.8.5),"
+                  " got %s", ne_get_error(i_session));
     }
 
     return OK;
@@ -258,9 +258,8 @@ static int move(void)
 	    src2, dest, 
 	    ne_move(i_session, 0, src2, dest) != NE_ERROR);
 
-    if (STATUS(412)) {
-	t_warning("MOVE-on-existing should fail with 412");
-    }
+    ONNREQ("MOVE onto existing resource with 'Overwrite: F' MUST fail "
+           "with 412 (RFC4918:10.6)", STATUS(412));
 
     ONM2REQ("MOVE onto existing resource with Overwrite: T",
 	    src2, dest,
