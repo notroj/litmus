@@ -1,6 +1,6 @@
 /* 
    litmus: WebDAV server test suite
-   Copyright (C) 2001-2006, 2008, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2001-2006, 2008, 2010, Joe Orton <joe@manyfish.co.uk>
                                                                      
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -209,10 +209,20 @@ static int double_sharedlock(void)
 static int owner_modify(void)
 {
     PRECOND(gotlock);
+    ne_proppatch_operation pops[] = {
+        { NULL, ne_propset, "foobar" },
+        { NULL }
+    };
+    const ne_propname pname = { "http://webdav.org/neon/litmus/", "random" };
+    
+    pops[0].name = &pname;
 
     ONV(ne_put(i_session, res, i_foo_fd),
 	("PUT on locked resource failed: %s", ne_get_error(i_session)));
 
+    ONMREQ("PROPPATCH on locked resouce", res,
+           ne_proppatch(i_session, res, pops));
+    
     return OK;
 }
 
