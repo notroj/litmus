@@ -1,3 +1,10 @@
+Changes in version 0.13:
+* Changed tests:
+ - locks: owner_modify checks that PROPPATCH works against a locked
+   resource (thanks to Javier Godoy)
+* Support PKCS#12 client cert with --client-cert/-c (Alejandro Alvarez Ayllon)
+* Update to neon 0.29.6.
+
 Changes in version 0.12.1:
 * Changed tests:
  - locks: remove DELETE from unmapped URI LOCK/DELETE/UNLOCK sequence
