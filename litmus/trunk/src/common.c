@@ -1,6 +1,6 @@
 /* 
    litmus: WebDAV server test suite: common routines
-   Copyright (C) 2001-2004, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2001-2004, 2011, Joe Orton <joe@manyfish.co.uk>
                                                                      
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -36,6 +36,8 @@
 
 #include <ne_uri.h>
 #include <ne_auth.h>
+#include <ne_ssl.h>
+#include <ne_session.h>
 
 #include "getopt.h"
 
@@ -62,10 +64,13 @@ static unsigned int proxy_port;
 int i_foo_fd;
 off_t i_foo_len;
 
+static char *client_certificate = NULL;
+
 const static struct option longopts[] = {
     { "htdocs", required_argument, NULL, 'd' },
     { "help", no_argument, NULL, 'h' },
     { "proxy", required_argument, NULL, 'p' },
+    { "client-cert",  required_argument, NULL, 'c' },
 #if 0
     { "colour", no_argument, NULL, 'c' },
     { "no-colour", no_argument, NULL, 'n' },
@@ -78,7 +83,9 @@ static void usage(FILE *output)
     fprintf(output, 
 	    "\rUsage: %s [OPTIONS] URL [username password]\n"
 	    " Options are:\n"
-	    "    -d DIR    use given htdocs root directory\n",
+	    "    -d DIR    use given htdocs root directory\n"
+	    "    -d PROXY  use PROXY as proxy URL\n"
+            "    -c CERT   use a PKCS#12 client certificate\n",
 	    test_argv[0]);
 }
 
@@ -144,7 +151,7 @@ int init(void)
     char *proxy_url = NULL;
 
     while ((optc = getopt_long(test_argc, test_argv, 
-			       "d:hp", longopts, NULL)) != -1) {
+			       "d:hpc:", longopts, NULL)) != -1) {
 	switch (optc) {
 	case 'd':
 	    htdocs_root = optarg;
@@ -155,6 +162,9 @@ int init(void)
 	case 'h':
 	    usage(stdout);
 	    exit(1);
+        case 'c':
+            client_certificate = optarg;
+            break;
 	default:
 	    usage(stderr);
 	    exit(1);
@@ -281,9 +291,30 @@ static int init_session(ne_session *sess)
 	if (!ne_has_support(NE_FEATURE_SSL)) {
 	    t_context("No SSL support, reconfigure using --with-ssl");
 	    return FAILHARD;
-	} else {
-	    ne_ssl_set_verify(sess, ignore_verify, NULL);
-	}
+        }
+        else {
+            ne_ssl_set_verify(sess, ignore_verify, NULL);
+            
+            if (client_certificate) {
+                ne_ssl_client_cert *cc;
+                
+                cc = ne_ssl_clicert_read(client_certificate);
+                if (!cc) {
+                    t_context("Can not read the client certificate '%s'", 
+                              client_certificate);
+                    return FAILHARD;
+                }
+                if (ne_ssl_clicert_encrypted(cc)) {
+                    if(ne_ssl_clicert_decrypt(cc, i_password)) {
+                        t_context("Invalid password for the certificate");
+                        return FAILHARD;
+                    }
+                }
+                
+                ne_ssl_set_clicert(sess, cc);
+                ne_ssl_clicert_free(cc);
+            }
+        }
     }
     
     return OK;
