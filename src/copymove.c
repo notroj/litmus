@@ -126,14 +126,12 @@ static int copy_cleanup(void)
 static int copy_coll(void)
 {
     int n;
-    char *csrc, *cdest, *rsrc, *rdest, *subsrc, *subdest, *cdest2;
+    char *csrc, *cdest, *subsrc, *subdest, *cdest2;
     char res[512];
 
     csrc = ne_concat(i_path, "ccsrc/", NULL);
     cdest = ne_concat(i_path, "ccdest/", NULL);
     cdest2 = ne_concat(i_path, "ccdest2/", NULL);
-    rsrc = ne_concat(i_path, "ccsrc/foo", NULL);
-    rdest = ne_concat(i_path, "ccdest/foo", NULL); 
     subsrc = ne_concat(i_path, "ccsrc/subcoll/", NULL);
     subdest = ne_concat(i_path, "ccdest/subcoll/", NULL);
 
@@ -286,14 +284,12 @@ static char *mdest, *msrc, *mdest2, *mnoncoll;
 static int move_coll(void)
 {
     int n;
-    char *rsrc, *rdest, *subsrc, *subdest;
+    char *subsrc, *subdest;
     char res[512];
 
     msrc = ne_concat(i_path, "mvsrc/", NULL);
     mdest = ne_concat(i_path, "mvdest/", NULL);
     mdest2 = ne_concat(i_path, "mvdest2/", NULL);
-    rsrc = ne_concat(i_path, "mvsrc/foo", NULL);
-    rdest = ne_concat(i_path, "mvdest/foo", NULL); 
     subsrc = ne_concat(i_path, "mvsrc/subcoll/", NULL);
     subdest = ne_concat(i_path, "mvdest/subcoll/", NULL);
     mnoncoll = ne_concat(i_path, "mvnoncoll", NULL);
