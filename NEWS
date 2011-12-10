@@ -1,3 +1,7 @@
+Changes in version 0.14:
+* Changed tests:
+ - copymove: copy_shallow fixed to check for shallow copy correctly (Javier Godoy)
+
 Changes in version 0.13:
 * Changed tests:
  - locks: owner_modify checks that PROPPATCH works against a locked
