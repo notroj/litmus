@@ -218,7 +218,7 @@ static int copy_shallow(void)
 
     /* Now make sure the child resource hasn't been copied along with
      * the collection. */
-    res = ne_concat(i_path, "foo", NULL);
+    res = ne_concat(i_path, "ccdest/foo", NULL);
     ne_delete(i_session, res);
     ONV(STATUS(404), 
         ("DELETE on `%s' should fail with 404: got %d", res, GETSTATUS));
