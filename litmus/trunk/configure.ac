@@ -1,6 +1,6 @@
 dnl autoconf script for litmus
 
-AC_INIT(litmus, 0.13, litmus@lists.manyfish.co.uk)
+AC_INIT(litmus, 0.14-dev, litmus@lists.manyfish.co.uk)
 
 AC_PREREQ(2.59)
 
