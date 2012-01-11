@@ -29,7 +29,7 @@ Significant environment variables:
     \$TESTROOT  - specify alternate program directory
         default: @libexecdir@/litmus
 
-Feedback to <litmus@webdav.org>.
+Feedback to <litmus@lists.manyfish.co.uk>.
 EOF
     exit 1
 }
