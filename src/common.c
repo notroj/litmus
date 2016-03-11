@@ -156,14 +156,14 @@ int init(void)
 	exit(1);
     }
 
-    if (ne_uri_parse(test_argv[optind], &u)) {
+    if (ne_uri_parse(test_argv[optind], &u) || !u.host || !u.path) {
 	t_context("couldn't parse server URL `%s'",
 		  test_argv[optind]);
 	return FAILHARD;
     }       
 
     if (proxy_url) {
-	if (ne_uri_parse(proxy_url, &proxy)) {
+	if (ne_uri_parse(proxy_url, &proxy) || !proxy.host) {
 	    t_context("couldn't parse proxy URL `%s'", proxy_url);
 	    return FAILHARD;
 	}
