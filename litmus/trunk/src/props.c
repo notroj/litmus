@@ -142,7 +142,6 @@ static int startelm(void *ud, int parent, const char *nspace,
 /* Depth 0 PROPFIND on root collection. */
 static int propfind_d0(void)
 {
-    int ret;
     struct results r = {0};
 
     r.ph = ne_propfind_create(i_session, i_path, NE_DEPTH_ZERO);
@@ -159,7 +158,8 @@ static int propfind_d0(void)
     ne_xml_push_handler(ne_propfind_get_parser(r.ph), startelm,
                         NULL, NULL, r.ph);
 
-    ret = ne_propfind_named(r.ph, props, d0_results, &r);
+    ONV(ne_propfind_named(r.ph, props, d0_results, &r),
+	("PROPFIND on root failed: %s", ne_get_error(i_session)));
 
     if (r.result) {
 	return r.result;
