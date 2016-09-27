@@ -228,11 +228,7 @@ static int owner_modify(void)
 
 /* ne_lock_discover which counts number of calls. */
 static void count_discover(void *userdata, const struct ne_lock *lock,
-#ifdef HAVE_NEON_026PLUS
                            const ne_uri *uri,
-#else
-			   const char *uri, 
-#endif
                            const ne_status *status)
 {
     if (lock) {
@@ -280,11 +276,7 @@ static int compare_locks(const struct ne_lock *exp, const struct ne_lock *act)
 
 /* check that the lock returned has correct URI, token */
 static void verify_discover(void *userdata, const struct ne_lock *lock,
-#ifdef HAVE_NEON_026PLUS
                             const ne_uri *uri,
-#else
-                            const char *uri, 
-#endif
 			    const ne_status *status)
 {
     int *ret = userdata;
