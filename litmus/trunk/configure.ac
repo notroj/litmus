@@ -1,10 +1,10 @@
 dnl autoconf script for litmus
 
-AC_INIT(litmus, 0.14-dev, litmus@lists.manyfish.co.uk)
+AC_INIT(litmus, 0.14.0, litmus@lists.manyfish.co.uk)
 
 AC_PREREQ(2.59)
 
-AC_COPYRIGHT([Copyright (c) 2001-2009 Joe Orton and others
+AC_COPYRIGHT([Copyright (c) 2001-2016 Joe Orton and others
 This configure script may be copied, distributed and modified under the 
 terms of the GNU General Public license; see COPYING for more details])
 
