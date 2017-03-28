@@ -67,7 +67,7 @@ static void d0_results(void *userdata, const ne_uri *uri,
     const char *path = uri->path;
 
     if (ne_path_compare(path, i_path)) {
-	t_warning("response href for wrong resource");
+        t_warning("response href for wrong resource, expected %s got %s", i_path, path);
     } else {
 	struct private *priv = ne_propset_private(rset);
 	if (!priv->collection) {
