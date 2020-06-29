@@ -1,5 +1,7 @@
 
-# litmus: WebDAV server protocol compliance test suite.
+# litmus
+
+_litmus_ is a WebDAV server protocol compliance test suite.
 
 Tests include:
 
@@ -25,7 +27,7 @@ username and password.  To run all the suites from a built litmus
 tree, use
 
 ~~~
-   make URL=http://dav.example.com/path/ check
+ $ make URL=http://dav.example.com/path/ check
 ~~~
 
 Where http://dav.server.url/path/ is a DAV-enabled collection.  litmus
@@ -35,7 +37,7 @@ username/password separated by strings.  e.g. if you have a user 'jim'
 defined with password '2518', use:
 
 ~~~
-  make URL=http://dav.example.com/path/ CREDS="jim 2518" check
+ $ make URL=http://dav.example.com/path/ CREDS="jim 2518" check
 ~~~
 
 To aid debugging, litmus adds a header `X-Litmus-One' to every request
@@ -47,8 +49,15 @@ To use after installation is complete ('make install'), run the
 'litmus' script, passing in a URL, optionally followed by the
 username/password.  For instance:
 
-     litmus http://dav.server.url/path/
- or  litmus http://dav.server.url/path/ jim 2518
+~~~
+ $ litmus http://dav.server.url/path/
+~~~
+
+or
+
+~~~
+ $ litmus http://dav.server.url/path/ jim 2518
+~~~
 
 litmus is licensed under the GNU GPL; see COPYING for full details.
 litmus is (C) 2001-2005 Joe Orton
