@@ -30,7 +30,7 @@ tree, use
  $ make URL=http://dav.example.com/path/ check
 ~~~
 
-Where http://dav.server.url/path/ is a DAV-enabled collection.  litmus
+Where http://dav.example.com/path/ is a DAV-enabled collection.  litmus
 must be able to create a new collection called 'litmus' at that
 location.  The Makefile variable 'CREDS' can also be defined to be a
 username/password separated by strings.  e.g. if you have a user 'jim'
@@ -50,13 +50,13 @@ To use after installation is complete ('make install'), run the
 username/password.  For instance:
 
 ~~~
- $ litmus http://dav.server.url/path/
+ $ litmus http://dav.example.com/path/
 ~~~
 
 or
 
 ~~~
- $ litmus http://dav.server.url/path/ jim 2518
+ $ litmus http://dav.example.com/path/ jim 2518
 ~~~
 
 litmus is licensed under the GNU GPL; see COPYING for full details.
