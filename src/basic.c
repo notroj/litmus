@@ -212,16 +212,31 @@ static int put_get_utf8_segment(void)
     return do_put_get("res-%e2%82%ac");
 }
 
+static int dummy_put(ne_session *sess, const char *path)
+{
+    ne_request *req;
+    int ret;
+
+    req = ne_request_create(sess, "PUT", path);
+    ne_set_request_body_buffer(req, "zero", 4);
+    ret = ne_request_dispatch(req);
+    ne_request_destroy(req);
+
+    if (ret == NE_OK && ne_get_status(req)->klass != 2)
+	ret = NE_ERROR;
+
+    return ret;
+}
+
 static int put_no_parent(void)
 {
     char *uri = ne_concat(i_path, "409me/noparent.txt", NULL);
-    ONN("MKCOL with missing intermediate succeeds",
-	ne_mkcol(i_session, uri) != NE_ERROR);
-    
-    if (STATUS(409)) {
-	t_warning("MKCOL with missing intermediate gave %d, should be 409",
-		  GETSTATUS);
-    }
+    ONN("PUT with missing intermediate succeeds",
+	dummy_put(i_session, uri) != NE_ERROR);
+
+    ONV(STATUS(409),
+        ("PUT with missing intermediate collection gave %d, "
+         "MUST be 409 [RFC4918:S9.7.1]", GETSTATUS));
 
     ne_free(uri);
 
@@ -328,15 +343,14 @@ static int mkcol_no_parent(void)
 
     uri = ne_concat(i_path, "409me/noparent/", NULL);
 
-    ONN("MKCOL with missing intermediate should fail (RFC2518:8.3.1)",
+    ONN("MKCOL with missing intermediate should fail (RFC4918:9.3)",
 	ne_mkcol(i_session, uri) != NE_ERROR);
-    
-    if (STATUS(409)) {
-	t_warning("MKCOL with missing intermediate gave %d, should be 409 (RFC2518:8.3.1)",
-		  GETSTATUS);
-    }
 
-    free(uri);
+    ONV(STATUS(409),
+        ("MKCOL with missing intermediate collection gave %d, "
+         "MUST be 409 [RFC4918:S9.3]", GETSTATUS));
+
+    ne_free(uri);
 
     return OK;
 }
