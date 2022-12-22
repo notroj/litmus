@@ -3,6 +3,8 @@
 
 _litmus_ is a WebDAV server protocol compliance test suite.
 
+GitHub: https://github.com/notroj/litmus | Web: https://notroj.github.io/litmus/
+
 Tests include:
 
 - OPTIONS for DAV: header
@@ -60,10 +62,10 @@ or
 ~~~
 
 litmus is licensed under the GNU GPL; see COPYING for full details.
-litmus is (C) 2001-2005 Joe Orton
 
-neon is licensed under the GNU LGPL; see libneon/COPYING.LIB for details.
-neon is (C) 1999-2005 Joe Orton and others.
+Bugs, feature requests and patches can be sent in via the Github
+repository: https://github.com/notroj/litmus
 
-Please send bug reports, feature requests, etc. in to the neon mailing
-list at litmus@lists.manyfish.co.uk
+~~~
+litmus is Copyright (C) 1999-2022 Joe Orton
+~~~
