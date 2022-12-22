@@ -20,13 +20,11 @@ AC_PROG_INSTALL
 dnl List of tests
 AC_SUBST([TESTS], ["basic copymove props locks http"])
 
-NE_REQUIRE_VERSIONS([0], [26 27 28 29 30])
+NE_REQUIRE_VERSIONS([0], [26 27 28 29 30 31 32])
 NEON_WITHOUT_ZLIB
 NEON_WITHOUT_ACL
 NEON_TEST
-NEON_VPATH_BUNDLED(['$(top_srcdir)/lib/neon'], [lib/neon], [NEON_NORMAL_BUILD()
-NEON_XML_PARSER([\$(top_srcdir)/lib/expat], [\$(top_builddir)/lib/expat])
-])
+NEON_LIBRARY
 
 dnl Check for getopt_long
 AC_CHECK_FUNC(getopt_long,,[AC_LIBOBJ(lib/getopt)
@@ -39,7 +37,7 @@ NEON_WARNINGS
 CPPFLAGS="$CPPFLAGS -I\${top_builddir} -I\$(top_srcdir)/lib"
 
 AC_CONFIG_FILES([litmus], [chmod +x litmus])
-AC_CONFIG_FILES([Makefile lib/neon/Makefile])
+AC_CONFIG_FILES([Makefile neon/src/Makefile])
 
 AC_OUTPUT
 
@@ -53,6 +51,6 @@ AC_MSG_NOTICE([Configured to build AC_PACKAGE_STRING:
 ])
 
 # For VPATH builds
-for d in lib lib/expat lib/neon test-common src; do
+for d in lib lib/expat neon neon/src test-common src; do
     test -d $d || mkdir $d
 done

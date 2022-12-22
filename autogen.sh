@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 echo -n "aclocal... "
-${ACLOCAL:-aclocal} -I macros
+${ACLOCAL:-aclocal} -I neon/macros
 echo -n "autoheader... "
 ${AUTOHEADER:-autoheader}
 echo -n "autoconf... "

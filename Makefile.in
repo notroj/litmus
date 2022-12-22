@@ -94,18 +94,18 @@ largefile: src/largefile.o $(ODEPS)
 	$(CC) $(LDFLAGS) -o $@ src/largefile.o $(ALL_LIBS)
 
 subdirs:
-	@cd lib/neon && $(MAKE)
+	@cd neon/src && $(MAKE)
 
 libtest.a: $(TESTOBJS)
 	$(AR) cru $@ $(TESTOBJS)
 	$(RANLIB) $@
 
 clean:	
-	@cd lib/neon && $(MAKE) clean
+	@cd neon/src && $(MAKE) clean
 	rm -f */*.o $(TESTS) largefile libtest.a *~ debug.log child.log
 
 distclean: clean
-	@cd lib/neon && $(MAKE) distclean
+	@cd neon/src && $(MAKE) distclean
 	rm Makefile litmus config.log config.h config.status
 
 .c.o:
