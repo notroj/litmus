@@ -7,26 +7,26 @@ GitHub: https://github.com/notroj/litmus | Web: https://notroj.github.io/litmus/
 
 Tests include:
 
-- OPTIONS for DAV: header
-- PUT, GET with byte comparison
-- MKCOL
-- DELETE (collections, non-collections)
-- COPY, MOVE using combinations of:
+* OPTIONS for DAV: header
+* PUT, GET with byte comparison
+* MKCOL
+* DELETE (collections, non-collections)
+* COPY, MOVE using combinations of:
  - overwrite t/f
  - destination exists/doesn't exist
  - collection/non-collection
-- Property manipulation and querying:
+* Property manipulation and querying:
  - set, delete, replace properties
  - persist dead props across COPY
  - namespace handling
-- Locking
+* Locking
  - attempts to modify locked resource (as lock owner, not owner)
  - shared/exclusive locks, lock discovery
 
 Bugs, feature requests and patches can be sent in via the Github
 repository: https://github.com/notroj/litmus
 
-# Usage
+## Usage
 
 litmus comprises of a set of test suites as separate executables: each
 program takes a URL on the command-line, optionally followed by
@@ -66,7 +66,7 @@ or
  $ litmus http://dav.example.com/path/ jim 2518
 ~~~
 
-# Copyright and licensing
+## Copyright and licensing
 
 litmus is licensed under the GNU GPL; see COPYING for full details.
 
