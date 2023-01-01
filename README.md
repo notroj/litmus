@@ -23,6 +23,11 @@ Tests include:
  - attempts to modify locked resource (as lock owner, not owner)
  - shared/exclusive locks, lock discovery
 
+Bugs, feature requests and patches can be sent in via the Github
+repository: https://github.com/notroj/litmus
+
+# Usage
+
 litmus comprises of a set of test suites as separate executables: each
 program takes a URL on the command-line, optionally followed by
 username and password.  To run all the suites from a built litmus
@@ -61,10 +66,9 @@ or
  $ litmus http://dav.example.com/path/ jim 2518
 ~~~
 
-litmus is licensed under the GNU GPL; see COPYING for full details.
+# Copyright and licensing
 
-Bugs, feature requests and patches can be sent in via the Github
-repository: https://github.com/notroj/litmus
+litmus is licensed under the GNU GPL; see COPYING for full details.
 
 ~~~
 litmus is Copyright (C) 1999-2022 Joe Orton
