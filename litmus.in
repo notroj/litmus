@@ -7,7 +7,6 @@ libexecdir=@libexecdir@
 datadir=@datadir@
 datarootdir=@datarootdir@
 
-HTDOCS=${HTDOCS-"@datadir@/litmus/htdocs"}
 TESTROOT=${TESTROOT-"@libexecdir@/litmus"}
 TESTS=${TESTS-"@TESTS@"}
 
@@ -24,8 +23,6 @@ Significant environment variables:
 
     \$TESTS     - specify test programs to run
         default: "@TESTS@"
-    \$HTDOCS    - specify alternate document root
-        default: @datadir@/litmus/htdocs
     \$TESTROOT  - specify alternate program directory
         default: @libexecdir@/litmus
 
@@ -47,7 +44,7 @@ test "$#" = "0" && usage
 for t in $TESTS; do
     tprog="${TESTROOT}/${t}"
     if test -x ${tprog}; then
-	if ${tprog} --htdocs ${HTDOCS} "$@"; then
+	if ${tprog} "$@"; then
 	    : pass
 	elif test $nofail -eq 0; then
 	    echo "See debug.log for network/debug traces."

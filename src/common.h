@@ -63,17 +63,15 @@ extern char *i_path;
 
 extern int i_class2; /* true if server is a class 2 DAV server. */
 
-/* If open_foo() has been called, this is the fd to the 'foo' file. */
-extern int i_foo_fd;
-
-/* size of file in foo */
-extern off_t i_foo_len;
-
 /* Upload htdocs/foo to i_path + path */
 int upload_foo(const char *path);
 
 /* Returns etag of resource at path within i_session */
 char *get_etag(const char *path);
+
+/* PUT request with body of "zero" to path. Returns NE_ERROR for
+ * non-2xx responses. */
+int dummy_put(ne_session *sess, const char *path);
 
 /* for method 'method' on 'uri', do operation 'x'. */
 #define ONMREQ(method, uri, x) do { int _ret = (x); if (_ret) { t_context("%s on `%s': %s", method, uri, ne_get_error(i_session)); return FAIL; } } while (0)

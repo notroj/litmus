@@ -148,7 +148,7 @@ static int notowner_modify(void)
 	t_warning("PROPPATCH failed with %d not 423", GETSTATUS2);
 
     ONN("PUT on locked resource should fail",
-	ne_put(i_session2, res, i_foo_fd) != NE_ERROR);
+	dummy_put(i_session2, res) != NE_ERROR);
 
     if (STATUS2(423))
 	t_warning("PUT failed with %d not 423", GETSTATUS2);
@@ -217,7 +217,7 @@ static int owner_modify(void)
     
     pops[0].name = &pname;
 
-    ONV(ne_put(i_session, res, i_foo_fd),
+    ONV(dummy_put(i_session, res),
 	("PUT on locked resource failed: %s", ne_get_error(i_session)));
 
     ONMREQ("PROPPATCH on locked resouce", res,
@@ -341,7 +341,7 @@ static int conditional_put(const char *ifhdr, int *klass, int *code)
     ne_request *req;
     
     req = ne_request_create(i_session, "PUT", res);
-    ne_set_request_body_fd(req, i_foo_fd, 0, i_foo_len);
+    ne_set_request_body_buffer(req, "zero", 4);
 
     ne_print_request_header(req, "If", "%s", ifhdr);
     
