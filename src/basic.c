@@ -212,22 +212,6 @@ static int put_get_utf8_segment(void)
     return do_put_get("res-%e2%82%ac");
 }
 
-static int dummy_put(ne_session *sess, const char *path)
-{
-    ne_request *req;
-    int ret;
-
-    req = ne_request_create(sess, "PUT", path);
-    ne_set_request_body_buffer(req, "zero", 4);
-    ret = ne_request_dispatch(req);
-    ne_request_destroy(req);
-
-    if (ret == NE_OK && ne_get_status(req)->klass != 2)
-	ret = NE_ERROR;
-
-    return ret;
-}
-
 static int put_no_parent(void)
 {
     char *uri = ne_concat(i_path, "409me/noparent.txt", NULL);

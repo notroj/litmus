@@ -38,6 +38,7 @@
 #include <ne_auth.h>
 #include <ne_ssl.h>
 #include <ne_session.h>
+#include <ne_locks.h>
 
 #include "getopt.h"
 
@@ -56,13 +57,8 @@ static int use_secure = 0;
 
 const char *i_username = NULL, *i_password;
 
-static char *htdocs_root = NULL;
-
 static char *proxy_hostname = NULL;
 static unsigned int proxy_port;
-
-int i_foo_fd;
-off_t i_foo_len;
 
 static char *client_certificate = NULL;
 
@@ -83,27 +79,9 @@ static void usage(FILE *output)
     fprintf(output, 
 	    "\rUsage: %s [OPTIONS] URL [username password]\n"
 	    " Options are:\n"
-	    "    -d DIR    use given htdocs root directory\n"
 	    "    -d PROXY  use PROXY as proxy URL\n"
             "    -c CERT   use a PKCS#12 client certificate\n",
 	    test_argv[0]);
-}
-
-static int open_foo(void)
-{
-    char *foofn = ne_concat(htdocs_root, "/foo", NULL);
-    struct stat st;
-
-    i_foo_fd = open(foofn, O_RDONLY | O_BINARY);
-    if (i_foo_fd < 0) {
-	t_context("could not open %s: %s", foofn, strerror(errno));
-	return FAILHARD;
-    }
-    
-    ONV(fstat(i_foo_fd, &st) < 0, ("could not stat file: %s", strerror(errno)));
-    i_foo_len = st.st_size;
-
-    return OK;
 }
 
 static int test_connect(void)
@@ -154,7 +132,7 @@ int init(void)
 			       "d:hpc:", longopts, NULL)) != -1) {
 	switch (optc) {
 	case 'd':
-	    htdocs_root = optarg;
+            t_warning("the 'htdocs' argument is now ignored");
 	    break;
 	case 'p':
 	    proxy_url = optarg;
@@ -177,9 +155,6 @@ int init(void)
 	usage(stderr);
 	exit(1);
     }
-
-    if (htdocs_root == NULL)
-	htdocs_root = "htdocs";
 
     if (ne_uri_parse(test_argv[optind], &u)) {
 	t_context("couldn't parse server URL `%s'",
@@ -242,8 +217,6 @@ int init(void)
 	CALL(test_resolve(proxy_hostname, "proxy server"));
     else
 	CALL(test_resolve(i_hostname, "server"));
-
-    CALL(open_foo());
 
     CALL(test_connect());
 
@@ -364,15 +337,41 @@ int finish(void)
     return OK;
 }
 
+static int do_put(ne_session *sess, const char *path, const char *content)
+{
+    ne_request *req;
+    int ret;
+
+    req = ne_request_create(sess, "PUT", path);
+    ne_lock_using_resource(req, path, 0);
+    ne_lock_using_parent(req, path);
+    ne_set_request_body_buffer(req, content, strlen(content));
+    ret = ne_request_dispatch(req);
+
+    if (ret == NE_OK && ne_get_status(req)->klass != 2)
+	ret = NE_ERROR;
+
+    ne_request_destroy(req);
+
+    return ret;
+}
+
+int dummy_put(ne_session *sess, const char *path)
+{
+    return do_put(sess, path, "zero");
+}
+
+static const char foo_content[] =
+    "This\nis\na\ntest\nfile\ncalled\nfoo\n";
+
 int upload_foo(const char *path)
 {
     char *uri = ne_concat(i_path, path, NULL);
     int ret;
-    /* i_foo_fd is rewound automagically by ne_request.c */
-    ret = ne_put(i_session, uri, i_foo_fd);
-    free(uri);
-    if (ret)
-	t_context("PUT of `%s': %s", uri, ne_get_error(i_session));
+
+    ret = do_put(i_session, uri, foo_content);
+
+    ne_free(uri);
     return ret;
 }
 
