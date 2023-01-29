@@ -1,0 +1,23 @@
+name: Build and test
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
+        install: [true, false]
+        neon: [--with-neon, --with-included-neon, --with-included-neon --with-ssl=openssl]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+          submodules: recursive
+    - run: sudo apt-get update && sudo apt-get -y install libneon27-dev
+      if: contains(matrix.neon, 'included-neon') != true
+    - run: ./autogen.sh
+    - run: ./configure --prefix=/tmp/litmus-root ${{ matrix.neon }}
+    - run: make
+    - run: if ${{matrix.install}}; then make install; fi

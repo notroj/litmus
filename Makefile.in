@@ -32,7 +32,6 @@ TESTOBJS = src/common.o test-common/child.o test-common/tests.o
 HDRS = src/common.h test-common/tests.h config.h
 
 TESTS = @TESTS@
-HTDOCS = foo
 
 URL = http://`hostname`/dav/
 CREDS = `whoami` `whoami`
@@ -62,18 +61,15 @@ check: $(TESTS) litmus
 	@test -d "$(DIR)" || mkdir "$(DIR)"
 	@rm -f $(DIR)/debug.log $(DIR)/child.log
 	@if test "$(DIR)" != "."; then echo "TESTS FOR $(DIR) ---"; fi
-	@cd $(DIR) && TESTROOT="$(top_builddir)" HTDOCS="$(top_srcdir)/htdocs" \
+	@cd $(DIR) && TESTROOT="$(top_builddir)" \
 	 $(top_builddir)/litmus $(OPTS) $(URL) $(CREDS)
 
 install: $(TESTS) litmus 
 	$(INSTALL) -d $(DESTDIR)$(bindir)
 	$(INSTALL) -d $(DESTDIR)$(libexecdir)/litmus
-	$(INSTALL) -d $(DESTDIR)$(datadir)/litmus/htdocs
 	$(INSTALL_PROGRAM) $(top_builddir)/litmus $(DESTDIR)$(bindir)/litmus
 	for t in $(TESTS); do \
 	  $(INSTALL_PROGRAM) $(top_builddir)/$$t $(DESTDIR)$(libexecdir)/litmus/$$t; done
-	for d in $(HTDOCS); do \
-	  $(INSTALL_DATA) $(top_srcdir)/htdocs/$$d $(DESTDIR)$(datadir)/litmus/htdocs/$d; done
 
 props: src/props.o $(ODEPS)
 	$(CC) $(LDFLAGS) -o $@ src/props.o $(ALL_LIBS)
