@@ -4,6 +4,7 @@ Changes in version 0.14:
  - basic: fix test for PUT giving 409 with no parent collection
    NOTE: this test now fails with Apache httpd < 2.4.55
 * Update to neon 0.32.4.
+* The bundled "htdocs" directory is no longer shipped or required.
 
 Changes in version 0.13:
 * Changed tests:

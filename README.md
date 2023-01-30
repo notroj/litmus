@@ -11,17 +11,20 @@ Tests include:
 * PUT, GET with byte comparison
 * MKCOL
 * DELETE (collections, non-collections)
-* COPY, MOVE using combinations of:
- - overwrite t/f
- - destination exists/doesn't exist
- - collection/non-collection
-* Property manipulation and querying:
- - set, delete, replace properties
- - persist dead props across COPY
- - namespace handling
-* Locking
- - attempts to modify locked resource (as lock owner, not owner)
- - shared/exclusive locks, lock discovery
+*   COPY, MOVE using combinations of:
+    *   overwrite t/f
+    *   destination exists/doesn't exist
+    *   collection/non-collection
+*   Property manipulation and querying:
+    *   set, delete, replace properties
+    *   persist dead props across COPY
+    *   namespace handling
+*   Locking
+    *   attempts to modify locked resource (as lock owner, not owner)
+    *   shared/exclusive locks
+    *   lock discovery
+    *   collection locking
+    *   lock refresh
 
 Bugs, feature requests and patches can be sent in via the Github
 repository: https://github.com/notroj/litmus
