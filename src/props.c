@@ -134,7 +134,7 @@ static int do_invalid_pfind(const char *body, const char *failmsg)
     ne_request *req = ne_request_create(i_session, "PROPFIND", i_path);
 
     ne_set_request_body_buffer(req, body, strlen(body));
-
+    ne_add_request_header(req, "Content-Type", NE_XML_MEDIA_TYPE);
     ne_add_depth_header(req, NE_DEPTH_ZERO);
 
     ONV(ne_request_dispatch(req),
@@ -354,6 +354,7 @@ static int propfind_returns_wellformed(const char *msg, const char *body)
     ne_request *req = ne_request_create(i_session, "PROPFIND", prop_uri);
 
     ne_set_request_body_buffer(req, body, strlen(body));
+    ne_add_request_header(req, "Content-Type", NE_XML_MEDIA_TYPE);
 
     ne_add_response_body_reader(req, ne_accept_207, ne_xml_parse_v, p);
     ONMREQ("PROPFIND", prop_uri, ne_request_dispatch(req));
@@ -374,6 +375,7 @@ static int do_patch(const char *failmsg, const char *body)
     ne_request *req = ne_request_create(i_session, "PROPPATCH", prop_uri);
 
     ne_set_request_body_buffer(req, body, strlen(body));
+    ne_add_request_header(req, "Content-Type", NE_XML_MEDIA_TYPE);
     
     ONNREQ(failmsg, ne_request_dispatch(req));
     ONV(ne_get_status(req)->klass != 2, ("%s", failmsg));
