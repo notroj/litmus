@@ -11,3 +11,7 @@ config.status
 configure
 aclocal.m4
 basic
+/autom4te.cache
+/debug.log
+/child.log
+/clog
