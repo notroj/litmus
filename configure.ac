@@ -1,20 +1,20 @@
 dnl autoconf script for litmus
 
-AC_INIT(litmus,[0.14],,,[https://github.com/notroj/litmus])
+AC_INIT([litmus],[0.14],[],[],[https://github.com/notroj/litmus])
 
-AC_PREREQ(2.59)
+AC_PREREQ([2.71])
 
 AC_COPYRIGHT([Copyright (c) 2001-2022 Joe Orton and others
 This configure script may be copied, distributed and modified under the 
 terms of the GNU General Public license; see COPYING for more details])
 
 AC_CONFIG_SRCDIR(litmus.in)
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 AC_DEFINE([_GNU_SOURCE], 1, [Define to enable GNU extensions])
 
 AC_PROG_CC
-AC_SET_MAKE
+AC_PROG_MAKE_SET
 AC_PROG_INSTALL
 
 dnl List of tests
