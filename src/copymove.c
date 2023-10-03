@@ -59,7 +59,7 @@ static int copy_simple(void)
 	   ne_copy(i_session, 0, NE_DEPTH_INFINITE, src, dest));
 
     if (STATUS(201)) {
-	t_warning("COPY to new resource should give 201 (RFC2518:S8.8.5)");
+	t_warning("COPY to new resource should give 201 (RFC4918:S9.8.5)");
     }
 
     return OK;
@@ -70,14 +70,14 @@ static int copy_overwrite(void)
     PRECOND(copy_ok);
 
     /* Do it again with Overwrite: F to check that fails. */
-    ONN("COPY on existing resource with Overwrite: F should fail (RFC2518:S8.8.4)",
+    ONN("COPY on existing resource with Overwrite: F should fail (RFC4918:S9.8.4)",
 	ne_copy(i_session, 0, NE_DEPTH_INFINITE, src, dest) != NE_ERROR);
 
     ONNREQ("COPY-on-existing with 'Overwrite: F' MUST fail with 412 "
            "(RFC4918:10.6)", STATUS(412));
     
     ONV(ne_copy(i_session, 1, NE_DEPTH_INFINITE, src, dest),
-	("COPY-on-existing with 'Overwrite: T' should succeed (RFC2518:S8.8.4): %s", ne_get_error(i_session)));
+	("COPY-on-existing with 'Overwrite: T' should succeed (RFC4918:S9.8.4): %s", ne_get_error(i_session)));
 
     /* tricky one this, I didn't think it should work, but the spec
      * makes it look like it should. */
@@ -106,7 +106,7 @@ static int copy_nodestcoll(void)
 
     if (STATUS(409)) {
         t_warning("COPY to non-existant collection '%snonesuch' gave '%s' not 409"
-                  " (RFC2518:S8.8.5)",
+                  " (RFC4918:S9.8.5)",
                   i_path, ne_get_error(i_session));
     }
 
