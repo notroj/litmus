@@ -85,9 +85,37 @@ static int copy_overwrite(void)
 	("COPY overwrites collection: %s", ne_get_error(i_session)));
     
     if (STATUS(204)) {
-	t_warning("COPY to existing resource should give 204 (RFC2518:S8.8.5),"
+	t_warning("COPY to existing resource should give 204 (RFC4918:S9.8.5),"
                   " got %s", ne_get_error(i_session));
     }
+
+    return OK;
+}
+
+/* Rerun the standard COPY test with the RFC4918 session flag turned
+   on, which uses an abspath in Destination headers rather than an
+   absoluteURI. */
+static int copy_abspath(void)
+{
+    int ret;
+
+    PRECOND(copy_ok);
+
+    ne_delete(i_session, dest);
+
+    ne_set_session_flag(i_session, NE_SESSFLAG_RFC4918, 1);
+    ret = ne_copy(i_session, 0, NE_DEPTH_INFINITE, src, dest);
+    ne_set_session_flag(i_session, NE_SESSFLAG_RFC4918, 0);
+
+    if (ret != NE_OK) {
+        t_warning("COPY Destination header should allow "
+                  "absolute path (RFC4918:S10.3): got %s",
+                  ne_get_error(i_session));
+    }
+    else if (STATUS(201)) {
+	t_warning("COPY to new resource should give 201 (RFC4918:S9.8.5)");
+    }
+
 
     return OK;
 }
@@ -357,7 +385,9 @@ ne_test tests[] = {
     INIT_TESTS,
 
     /*** Copy/move tests. ***/
-    T(copy_init), T(copy_simple), T(copy_overwrite), 
+    T(copy_init),
+    T(copy_simple), T(copy_overwrite),
+    T(copy_abspath),
     T(copy_nodestcoll), 
     T(copy_cleanup), 
 
