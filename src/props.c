@@ -24,6 +24,7 @@
 #include <ne_request.h>
 #include <ne_props.h>
 #include <ne_uri.h>
+#include <ne_dates.h>
 
 #include "common.h"
 
@@ -547,6 +548,65 @@ static int propmanyns(void)
     return OK;
 }
 
+/* Callback which checks getlastmodified property. */
+static void pglm_results(void *userdata, const ne_uri *uri,
+                         const ne_prop_result_set *rset)
+{
+    struct results *r = userdata;
+    const char *value;
+    const ne_status *status;
+    int n;
+    time_t tval;
+
+    r->result = OK;
+
+    value = ne_propset_value(rset, &propnames[0]);
+    status = ne_propset_status(rset, &propnames[0]);
+
+    if (status && status->klass != 2) {
+        t_warning("non-2xx response propstat for getlastmodified");
+        return;
+    }
+
+    if (value == NULL) {
+        t_warning("no getlastmodified defined for resource");
+        return;
+    }
+
+    tval = ne_rfc1123_parse(value);
+    if (tval == -1) {
+        t_warning("getlastmodified value was not RFC1123-format per RFC4918:S15.7");
+    }
+
+    if (ne_httpdate_parse(value) == -1) {
+        t_context("could not parse getlastmodified value as HTTP-date");
+        r->result = FAIL;
+    }
+    else {
+        NE_DEBUG(NE_DBG_HTTP, "props: Success, parsed %s as HTTP-date.\n", value);
+    }
+
+}
+
+static int propgetlastmod(void)
+{
+    struct results r = {0};
+
+    PRECOND(prop_ok);
+
+    propnames[0] = props[1];
+    propnames[1].name = NULL;
+
+    r.result = FAIL;
+    t_context("No responses returned");
+
+    ONMREQ("PROPFIND", prop_uri,
+	   ne_simple_propfind(i_session, prop_uri, NE_DEPTH_ZERO,
+			      propnames, pglm_results, &r));
+
+    return r.result;
+}
+
 static int propcleanup(void)
 {
     ne_delete(i_session, prop_uri);
@@ -573,6 +633,7 @@ ne_test tests[] =
     T(propvalnspace), T(propwformed),
     
     T(propinit),
+    T(propgetlastmod),
 
     T(propmanyns), T(propget),
     T(propcleanup),
