@@ -1,3 +1,12 @@
+Changes in version 0.15:
+* New tests:
+ - props: new test for DAV:getlastmodified property value
+* Bug fixes:
+ - fix crash on invalid URL command-line (Glenn Strauss)
+ - locks: fixed lockscope check error reporting (Glenn Strauss)
+ - send correct request content-type in all PROPFIND/PROPPATCH tests
+ - various error/warning references updated from RFC 2518 to 4918
+
 Changes in version 0.14:
 * Changed tests:
  - copymove: copy_shallow fixed to check for shallow copy correctly (Javier Godoy)
