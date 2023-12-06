@@ -130,10 +130,10 @@ static int copy_nodestcoll(void)
     ret = ne_copy(i_session, 0, NE_DEPTH_ZERO, src, nodest);
     
     ONV(ret == NE_OK, 
-        ("COPY into non-existant collection '%snonesuch' succeeded", i_path));
+        ("COPY into non-existent collection '%snonesuch' succeeded", i_path));
 
     if (STATUS(409)) {
-        t_warning("COPY to non-existant collection '%snonesuch' gave '%s' not 409"
+        t_warning("COPY to non-existent collection '%snonesuch' gave '%s' not 409"
                   " (RFC4918:S9.8.5)",
                   i_path, ne_get_error(i_session));
     }
