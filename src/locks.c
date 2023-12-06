@@ -220,7 +220,7 @@ static int owner_modify(void)
     ONV(dummy_put(i_session, res),
 	("PUT on locked resource failed: %s", ne_get_error(i_session)));
 
-    ONMREQ("PROPPATCH on locked resouce", res,
+    ONMREQ("PROPPATCH on locked resource", res,
            ne_proppatch(i_session, res, pops));
     
     return OK;

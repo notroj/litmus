@@ -114,7 +114,7 @@ Changes in version 0.6.1:
 Changes in version 0.6:
 * Fixes for cygwin (thanks to Julian Reschke).
 * Improved failure messages.
-* If a LOCK fails, dependant tests will be skipped.
+* If a LOCK fails, dependent tests will be skipped.
 * Add documentation to 'FAQ' on some of the tests which failed with
  mod_dav 1.0.2.
 * Upgrade to neon 0.20.0-dev:

@@ -52,7 +52,7 @@ TF(options); TF(finish);
 /* And finish everything off */
 #define FINISH_TESTS T(finish), T(NULL)
 
-/* The sesssion to use. */
+/* The session to use. */
 extern ne_session *i_session, *i_session2;
 
 /* server details. */
