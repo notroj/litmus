@@ -1,0 +1,5 @@
+[codespell]
+skip = .git,*.pdf,*.svg,.codespellrc,ChangeLog.CVS
+check-hidden = true
+ignore-regex = \bONS\b
+# ignore-words-list =
