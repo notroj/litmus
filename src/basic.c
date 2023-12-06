@@ -266,7 +266,7 @@ static int delete_null(void)
 static int delete_fragment(void)
 {
     char *uri = ne_concat(i_path, "frag/", NULL);
-    char *frag = ne_concat(i_path, "frag/#ment", NULL);
+    char *frag = ne_concat(i_path, "frag/#ment", NULL);  /* pragma: codespell-ignore */
     
     ONN("could not create collection", ne_mkcol(i_session, uri) != NE_OK);
 
