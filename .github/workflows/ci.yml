@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
+        os: [ubuntu-20.04, ubuntu-22.04]
         install: [true, false]
         neon: [--with-neon, --with-included-neon, --with-included-neon --with-ssl=openssl]
     steps:
