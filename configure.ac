@@ -2,7 +2,7 @@ dnl autoconf script for litmus
 
 AC_INIT([litmus],[0.14],[],[],[https://github.com/notroj/litmus])
 
-AC_PREREQ([2.71])
+AC_PREREQ([2.59])
 
 AC_COPYRIGHT([Copyright (c) 2001-2022 Joe Orton and others
 This configure script may be copied, distributed and modified under the 
