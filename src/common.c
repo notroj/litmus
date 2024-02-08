@@ -340,7 +340,7 @@ int finish(void)
 static int do_put(ne_session *sess, const char *path, const char *content)
 {
 #if NE_VERSION_MAJOR > 0 || NE_VERSION_MINOR > 32
-    return ne_putbuf(sess, path, content, strlen(content);
+    return ne_putbuf(sess, path, content, strlen(content));
 #else
     ne_request *req;
     int ret;
