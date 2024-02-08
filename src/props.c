@@ -555,7 +555,6 @@ static void pglm_results(void *userdata, const ne_uri *uri,
     struct results *r = userdata;
     const char *value;
     const ne_status *status;
-    int n;
     time_t tval;
 
     r->result = OK;
