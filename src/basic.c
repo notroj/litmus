@@ -227,6 +227,44 @@ static int put_no_parent(void)
     return OK;
 }
 
+#define PUT_HASH "/dav/put%23test"
+
+static int put_location(void)
+{
+    ne_request *req;
+    const char *s;
+
+    /* ignore failure. */
+    (void) ne_delete(i_session, PUT_HASH);
+
+    req = ne_request_create(i_session, "PUT", PUT_HASH);
+    ne_set_request_body_buffer(req, "hello", 5);
+    ONNREQ("PUT failed", ne_request_dispatch(req));
+
+    ONV(ne_get_status(req)->code != 201,
+        ("PUT to create resource MUST return 201 [RFC9110ẞ9.3.4]"));
+
+    s = ne_get_response_header(req, "Location");
+    if (s) {
+        ne_uri uri = {0};
+
+        ONV(ne_uri_parse(s, &uri),
+            ("could not parse Location URI %s", s));
+
+        ONV(strcmp(uri.path, PUT_HASH) != 0,
+            ("Location header was %s not %s", s, PUT_HASH));
+
+        ne_uri_free(&uri);
+    }
+    else {
+        t_warning("PUT for new resource did not include a Location header");
+    }
+
+    ne_request_destroy(req);
+
+    return OK;
+}
+
 static int mkcol_over_plain(void)
 {
     PRECOND(pg_uri);
@@ -377,6 +415,7 @@ ne_test tests[] = {
     T(put_get),
     T(put_get_utf8_segment),
     T(put_no_parent),
+    T(put_location),
     T(mkcol_over_plain),
     T(delete),
     T(delete_null),
