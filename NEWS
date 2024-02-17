@@ -1,7 +1,7 @@
 Changes in version 0.15:
 * New tests:
  - props: test for DAV:getlastmodified property value
- - basic: test for Location header returned by PUT
+ - basic: test Location header if returned by PUT
 * Bug fixes:
  - fix crash on invalid URL command-line (Glenn Strauss)
  - locks: fixed lockscope check error reporting (Glenn Strauss)
