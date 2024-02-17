@@ -244,6 +244,7 @@ static int put_location(void)
     ONV(ne_get_status(req)->code != 201,
         ("PUT to create resource MUST return 201 [RFC9110ẞ9.3.4]"));
 
+    /* PUT to create resource might return Location with 201 [RFC9110ẞ15.3.2] */
     s = ne_get_response_header(req, "Location");
     if (s) {
         ne_uri uri = {0};
@@ -255,9 +256,6 @@ static int put_location(void)
             ("Location header was %s not %s", s, PUT_HASH));
 
         ne_uri_free(&uri);
-    }
-    else {
-        t_warning("PUT for new resource did not include a Location header");
     }
 
     ne_request_destroy(req);
