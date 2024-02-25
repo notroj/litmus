@@ -103,23 +103,6 @@ static int adv_options(void)
 #define BINARYMODE(fd) if (0)
 #endif
 
-static char *create_temp(const char *contents)
-{
-    char tmp[256] = "/tmp/litmus-XXXXXX";
-    int fd;
-    size_t len = strlen(contents);
-    
-    fd = mkstemp(tmp);
-    BINARYMODE(fd);
-    if (write(fd, contents, len) != (ssize_t)len) {
-        close(fd);
-        return NULL;
-    }        
-    close(fd);
-
-    return ne_strdup(tmp);
-}
-
 static int compare_contents(const char *fn, const char *contents)
 {
     int fd = open(fn, O_RDONLY | O_BINARY), ret;
@@ -159,18 +142,13 @@ static char *pg_uri = NULL;
 
 static int do_put_get(const char *segment)
 {
-    char *fn, tmp[] = "/tmp/litmus2-XXXXXX", *uri;
-    int fd, res;
-    
-    fn = create_temp(test_contents);
-    ONN("could not create temporary file", fn == NULL);        
+    char tmp[] = "/tmp/litmus2-XXXXXX", *uri;
+    int fd;
 
     uri = ne_concat(i_path, segment, NULL);
 
-    fd = open(fn, O_RDONLY | O_BINARY);
-    ONV(ne_put(i_session, uri, fd),
+    ONV(put_buffer(i_session, uri, test_contents),
 	("PUT of `%s' failed: %s", uri, ne_get_error(i_session)));
-    close(fd);
     
     if (STATUS(201)) {
 	t_warning("PUT of new resource gave %d, should be 201",
@@ -183,17 +161,9 @@ static int do_put_get(const char *segment)
 	("GET of `%s' failed: %s", uri, ne_get_error(i_session)));
     close(fd);
 
-    res = compare_contents(tmp, test_contents);
-    if (res != OK) {
-	char cmd[1024];
-
-	ne_snprintf(cmd, 1024, "diff -u %s %s", fn, tmp);
-	system(cmd);
-	ONN("PUT/GET byte comparison", res);
-    }
+    ONN("PUT/GET byte comparison", compare_contents(tmp, test_contents));
 
     /* Clean up. */
-    unlink(fn);
     unlink(tmp);
 
     /* so delete() isn't skipped. */
