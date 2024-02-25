@@ -7,6 +7,7 @@ Changes in version 0.15:
  - locks: fixed lockscope check error reporting (Glenn Strauss)
  - send correct request content-type in all PROPFIND/PROPPATCH tests
  - various error/warning references updated from RFC 2518 to 4918
+* Updated to neon 0.33.0.
 
 Changes in version 0.14:
 * Changed tests:
