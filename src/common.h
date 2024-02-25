@@ -73,6 +73,10 @@ char *get_etag(const char *path);
  * non-2xx responses. */
 int dummy_put(ne_session *sess, const char *path);
 
+/* PUT request to 'path' with request body NUL-terminated string
+ * 'content'. */
+int put_buffer(ne_session *sess, const char *path, const char *content);
+
 /* for method 'method' on 'uri', do operation 'x'. */
 #define ONMREQ(method, uri, x) do { int _ret = (x); if (_ret) { t_context("%s on `%s': %s", method, uri, ne_get_error(i_session)); return FAIL; } } while (0)
 
