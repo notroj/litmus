@@ -1,6 +1,6 @@
 dnl autoconf script for litmus
 
-AC_INIT([litmus],[0.14],[],[],[https://github.com/notroj/litmus])
+AC_INIT([litmus],[0.15],[],[],[https://github.com/notroj/litmus])
 
 AC_PREREQ([2.59])
 
