@@ -337,7 +337,7 @@ int finish(void)
     return OK;
 }
 
-static int do_put(ne_session *sess, const char *path, const char *content)
+int put_buffer(ne_session *sess, const char *path, const char *content)
 {
 #if NE_VERSION_MAJOR > 0 || NE_VERSION_MINOR > 32
     return ne_putbuf(sess, path, content, strlen(content));
@@ -362,7 +362,7 @@ static int do_put(ne_session *sess, const char *path, const char *content)
 
 int dummy_put(ne_session *sess, const char *path)
 {
-    return do_put(sess, path, "zero");
+    return put_buffer(sess, path, "zero");
 }
 
 static const char foo_content[] =
@@ -373,7 +373,7 @@ int upload_foo(const char *path)
     char *uri = ne_concat(i_path, path, NULL);
     int ret;
 
-    ret = do_put(i_session, uri, foo_content);
+    ret = put_buffer(i_session, uri, foo_content);
 
     ne_free(uri);
     return ret;
