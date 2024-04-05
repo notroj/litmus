@@ -197,17 +197,16 @@ static int put_no_parent(void)
     return OK;
 }
 
-#define PUT_HASH "/dav/put%23test"
-
 static int put_location(void)
 {
     ne_request *req;
     const char *s;
+    char *put_uri = ne_concat(i_path, "put%23test", NULL);
 
     /* ignore failure. */
-    (void) ne_delete(i_session, PUT_HASH);
+    (void) ne_delete(i_session, put_uri);
 
-    req = ne_request_create(i_session, "PUT", PUT_HASH);
+    req = ne_request_create(i_session, "PUT", put_uri);
     ne_set_request_body_buffer(req, "hello", 5);
     ONNREQ("PUT failed", ne_request_dispatch(req));
 
@@ -222,8 +221,8 @@ static int put_location(void)
         ONV(ne_uri_parse(s, &uri),
             ("could not parse Location URI %s", s));
 
-        ONV(strcmp(uri.path, PUT_HASH) != 0,
-            ("Location header was %s not %s", s, PUT_HASH));
+        ONV(strcmp(uri.path, put_uri) != 0,
+            ("Location header was %s not %s", s, put_uri));
 
         ne_uri_free(&uri);
     }
