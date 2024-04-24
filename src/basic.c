@@ -306,12 +306,13 @@ static int mkcol_again(void)
 {
     PRECOND(coll_uri);
 
-    ONN("MKCOL on existing collection should fail (RFC2518:8.3.1)",
-	ne_mkcol(i_session, coll_uri) != NE_ERROR);
+    ONV(ne_mkcol(i_session, coll_uri) != NE_ERROR,
+        ("MKCOL on existing collection should fail (RFC4918:S9.1), got: %s",
+         ne_get_error(i_session)));
 
     if (STATUS(405)) {
-	t_warning("MKCOL on existing collection gave %d, should be 405 (RFC2518:8.3.2)",
-		  GETSTATUS);
+	t_warning("MKCOL on existing collection gave %d, should be "
+                  "405 (RFC4918:S9.3.2)", GETSTATUS);
     }
     
     return OK;
@@ -364,12 +365,10 @@ static int mkcol_with_body(void)
     ONV(ne_request_dispatch(req),
 	("MKCOL on `%s' with (invalid) body: %s", uri,
 	 ne_get_error(i_session)));
-    
-    ONN("MKCOL with weird body must fail (RFC2518:8.3.1)",
-	ne_get_status(req)->klass == 2);
-    
-    ONN("MKCOL with weird body must fail with 415 (RFC2518:8.3.1)",
-	ne_get_status(req)->code != 415);
+
+    ONV(ne_get_status(req)->code != 415,
+        ("MKCOL with weird body must fail, got %d [RFC4918:S9.3)",
+         ne_get_status(req)->code));
     
     ne_request_destroy(req);
 
