@@ -624,6 +624,8 @@ ne_test tests[] =
 
     T(propmove), T(propget),
     T(propdeletes), T(propget),
+    /* deleting a property twice should succeed. */
+    T(propset), T(propdeletes), T(propdeletes),
     T(propreplace), T(propget),
     T(propnullns), T(propget),
     T(prophighunicode), T(propget),
