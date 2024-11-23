@@ -1,3 +1,11 @@
+Changes in version 0.16:
+* New tests:
+ - props: test that deleting a property twice succeeds
+* Bug fixes:
+ - basic: fix path used in put_location test (Martin Vobruba)
+* Various error/warning references updated from RFC 2518 to 4918
+* Update to neon 0.34.0.
+
 Changes in version 0.15:
 * New tests:
  - props: test for DAV:getlastmodified property value
