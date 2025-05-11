@@ -1,4 +1,6 @@
 
+[![Build and test](https://github.com/notroj/litmus/actions/workflows/ci.yml/badge.svg)](https://github.com/notroj/litmus/actions/workflows/ci.yml)
+
 # litmus
 
 _litmus_ is a WebDAV server protocol compliance test suite.
