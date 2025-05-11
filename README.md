@@ -43,7 +43,7 @@ tree, use
 ~~~
 
 Where http://dav.example.com/path/ is a DAV-enabled collection.  litmus
-must be able to create a new collection called 'litmus' at that
+must be able to create a new collection called `litmus` at that
 location.  The Makefile variable 'CREDS' can also be defined to be a
 username/password separated by strings.  e.g. if you have a user 'jim'
 defined with password '2518', use:
@@ -52,13 +52,13 @@ defined with password '2518', use:
  $ make URL=http://dav.example.com/path/ CREDS="jim 2518" check
 ~~~
 
-To aid debugging, litmus adds a header `X-Litmus-One' to every request
-made.  After running a test suite, the file 'debug.log' includes a
-full neon debugging trace (unless neon or litmus was configured
-without debugging enabled!).
+To aid debugging, litmus adds a header `X-Litmus` to every request
+made, which includes metadata about the test being run.  After running 
+a test suite, the file `debug.log` includes a full neon debugging trace
+(unless neon or litmus was configured without debugging enabled!).
 
-To use after installation is complete ('make install'), run the
-'litmus' script, passing in a URL, optionally followed by the
+To use after installation is complete (`make install`), run the
+`litmus` script, passing in a URL, optionally followed by the
 username/password.  For instance:
 
 ~~~
