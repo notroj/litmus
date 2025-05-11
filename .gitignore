@@ -15,3 +15,6 @@ basic
 /debug.log
 /child.log
 /clog
+/config.guess
+/config.sub
+/ltmain.sh
