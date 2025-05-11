@@ -18,6 +18,7 @@ Options:
  -k, --keep-going        continue testing even if one suite fails
  -p, --proxy=URL         use given proxy server URL
  -c, --client-cert=CERT  use given PKCS#12 client cert
+ -i, --insecure          ignore TLS certificate verification failures
 
 Significant environment variables:
 

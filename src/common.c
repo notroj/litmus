@@ -48,12 +48,12 @@ int i_class2 = 0;
 
 ne_session *i_session, *i_session2;
 
-const char *i_hostname;
+const char *i_hostname, *i_scheme;
 unsigned int i_port;
 ne_sock_addr *i_address;
 char *i_path;
 
-static int use_secure = 0;
+static int use_tls, tls_trust_everything;
 
 const char *i_username = NULL, *i_password;
 
@@ -62,11 +62,12 @@ static unsigned int proxy_port;
 
 static char *client_certificate = NULL;
 
-const static struct option longopts[] = {
+static const struct option longopts[] = {
     { "htdocs", required_argument, NULL, 'd' },
     { "help", no_argument, NULL, 'h' },
     { "proxy", required_argument, NULL, 'p' },
     { "client-cert",  required_argument, NULL, 'c' },
+    { "insecure", no_argument, NULL, 'i' },
 #if 0
     { "colour", no_argument, NULL, 'c' },
     { "no-colour", no_argument, NULL, 'n' },
@@ -129,7 +130,7 @@ int init(void)
     char *proxy_url = NULL;
 
     while ((optc = getopt_long(test_argc, test_argv, 
-			       "d:hpc:", longopts, NULL)) != -1) {
+			       "d:hpc:i", longopts, NULL)) != -1) {
 	switch (optc) {
 	case 'd':
             t_warning("the 'htdocs' argument is now ignored");
@@ -142,6 +143,9 @@ int init(void)
 	    exit(1);
         case 'c':
             client_certificate = optarg;
+            break;
+        case 'i':
+            tls_trust_everything = 1;
             break;
 	default:
 	    usage(stderr);
@@ -156,7 +160,7 @@ int init(void)
 	exit(1);
     }
 
-    if (ne_uri_parse(test_argv[optind], &u) || !u.host || !u.path) {
+    if (ne_uri_parse(test_argv[optind], &u) || !u.host || !u.path || !u.scheme) {
 	t_context("couldn't parse server URL `%s'",
 		  test_argv[optind]);
 	return FAILHARD;
@@ -179,14 +183,19 @@ int init(void)
 	proxy_hostname = proxy.host;
     }		      
 
-    if (u.scheme && strcmp(u.scheme, "https") == 0)
-	use_secure = 1;
+    use_tls = strcmp(u.scheme, "https") == 0;
+    if (use_tls && !ne_has_support(NE_FEATURE_SSL)) {
+        t_context("No SSL support, reconfigure using --with-ssl");
+        return FAILHARD;
+    }
 
     i_hostname = u.host;
+    i_scheme = u.scheme;
+
     if (u.port > 0) {
 	i_port = u.port;
     } else {
-	if (use_secure) {
+	if (use_tls) {
 	    i_port = 443;
 	} else {
 	    i_port = 80;
@@ -257,33 +266,29 @@ static int init_session(ne_session *sess)
 	ne_set_server_auth(sess, auth, NULL);
     }
 
-    if (use_secure) {
-	if (!ne_has_support(NE_FEATURE_SSL)) {
-	    t_context("No SSL support, reconfigure using --with-ssl");
-	    return FAILHARD;
-        }
-        else {
-            ne_ssl_set_verify(sess, ignore_verify, NULL);
+    if (use_tls) {
+        ne_ssl_trust_default_ca(sess);
+
+        if (tls_trust_everything) ne_ssl_set_verify(sess, ignore_verify, NULL);
+
+        if (client_certificate) {
+            ne_ssl_client_cert *cc;
             
-            if (client_certificate) {
-                ne_ssl_client_cert *cc;
-                
-                cc = ne_ssl_clicert_read(client_certificate);
-                if (!cc) {
-                    t_context("Can not read the client certificate '%s'", 
-                              client_certificate);
+            cc = ne_ssl_clicert_read(client_certificate);
+            if (!cc) {
+                t_context("Can not read the client certificate '%s'",
+                          client_certificate);
+                return FAILHARD;
+            }
+            if (ne_ssl_clicert_encrypted(cc)) {
+                if(ne_ssl_clicert_decrypt(cc, i_password)) {
+                    t_context("Invalid password for the certificate");
                     return FAILHARD;
                 }
-                if (ne_ssl_clicert_encrypted(cc)) {
-                    if(ne_ssl_clicert_decrypt(cc, i_password)) {
-                        t_context("Invalid password for the certificate");
-                        return FAILHARD;
-                    }
-                }
-                
-                ne_ssl_set_clicert(sess, cc);
-                ne_ssl_clicert_free(cc);
             }
+
+            ne_ssl_set_clicert(sess, cc);
+            ne_ssl_clicert_free(cc);
         }
     }
     
@@ -311,9 +316,8 @@ static int make_space(void)
 
 int begin(void)
 {
-    const char *scheme = use_secure?"https":"http";
-    i_session = ne_session_create(scheme, i_hostname, i_port);
-    i_session2 = ne_session_create(scheme, i_hostname, i_port);
+    i_session = ne_session_create(i_scheme, i_hostname, i_port);
+    i_session2 = ne_session_create(i_scheme, i_hostname, i_port);
 
     CALL(init_session(i_session));
     CALL(init_session(i_session2));
