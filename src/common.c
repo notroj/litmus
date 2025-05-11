@@ -233,13 +233,10 @@ static int auth(void *ud, const char *realm, int attempt,
 
 static void i_pre_send(ne_request *req, void *userdata, ne_buffer *hdr)
 {
-    char buf[BUFSIZ];
     const char *name = userdata;
     
-    ne_snprintf(buf, BUFSIZ, "%s: %s: %d (%s)\r\n", 
-		name, test_suite, test_num, tests[test_num].name);
-    
-    ne_buffer_zappend(hdr, buf);
+    ne_buffer_snprintf(hdr, BUFSIZ, "%s: %s: %d (%s)\r\n",
+                       name, test_suite, test_num, tests[test_num].name);
 }
 
 /* Allow all certificates. */
