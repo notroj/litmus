@@ -71,6 +71,24 @@ or
  $ litmus http://dav.example.com/path/ jim 2518
 ~~~
 
+## SSL/TLS
+
+Since version 0.17 `litmus` trusts the default TLS CA certificates
+configured in the SSL library. If you want to run against a server
+with a self-signed or otherwise untrusted server certificate, use the
+--insecure option, e.g.
+
+~~~
+ $ litmus --insecure https://dav.example.com/path/
+~~~
+
+`litmus` can use a TLS client certificate, which must be provided in
+PKCS#12 format. e.g.:
+
+~~~
+ $ litmus --client-cert=client.p12 https://dav.example.com/path/
+~~~
+
 ## Copyright and licensing
 
 litmus is licensed under the GNU GPL; see COPYING for full details.
