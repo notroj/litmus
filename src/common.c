@@ -123,7 +123,7 @@ static int test_resolve(const char *hostname, const char *name)
     return OK;
 }
 
-int init(void)
+int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
 {
     ne_uri u = {0}, proxy = {0};
     int optc, n;

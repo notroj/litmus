@@ -47,7 +47,7 @@ TF(init); TF(begin);
 TF(options); TF(finish);
 
 /* Standard initialisers for tests[] array: start everything up: */
-#define INIT_TESTS T(init), T(begin)
+#define INIT_TESTS T(begin)
 
 /* And finish everything off */
 #define FINISH_TESTS T(finish), T(NULL)

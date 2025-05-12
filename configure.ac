@@ -1,6 +1,6 @@
 dnl autoconf script for litmus
 
-AC_INIT([litmus],[0.15],[],[],[https://github.com/notroj/litmus])
+AC_INIT([litmus],[0.17],[],[],[https://github.com/notroj/litmus])
 
 AC_PREREQ([2.59])
 
@@ -38,7 +38,9 @@ NEON_FORMAT(long long)
 NEON_DEBUG
 NEON_WARNINGS
 
-CPPFLAGS="$CPPFLAGS -I\${top_builddir}"
+# Define NEON_TEST_INIT so that litmus_init() is used as test
+# framework initializer in all builds.
+CPPFLAGS="$CPPFLAGS -I\${top_builddir} -DNEON_TEST_INIT=litmus_init"
 
 AC_CONFIG_FILES([litmus], [chmod +x litmus])
 AC_CONFIG_FILES([Makefile neon/src/Makefile])
