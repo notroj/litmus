@@ -17,9 +17,13 @@ litmus: Usage: $0 [OPTIONS] URL [USERNAME PASSWORD]
 Options:
  -k, --keep-going        continue testing even if one suite fails
  -p, --proxy=URL         use given proxy server URL
+ -s, --system-proxy      use proxy server configuration from system
  -c, --client-cert=CERT  use given PKCS#12 client cert
  -i, --insecure          ignore TLS certificate verification failures
-
+ -q, --quiet             use abbreviated output
+ -n, --no-colour         enable coloured output
+ -o, --colour            disable coloured output
+ 
 Significant environment variables:
 
     \$TESTS     - specify test programs to run

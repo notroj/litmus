@@ -59,19 +59,20 @@ const char *i_username = NULL, *i_password;
 
 static char *proxy_hostname = NULL;
 static unsigned int proxy_port;
+static int system_proxy;
 
 static char *client_certificate = NULL;
 
 static const struct option longopts[] = {
     { "htdocs", required_argument, NULL, 'd' },
     { "help", no_argument, NULL, 'h' },
+    { "quiet", no_argument, NULL, 'q' },
+    { "no-colour", no_argument, NULL, 'n' },
+    { "colour", no_argument, NULL, 'o' },
     { "proxy", required_argument, NULL, 'p' },
+    { "system-proxy", no_argument, NULL, 's' },
     { "client-cert",  required_argument, NULL, 'c' },
     { "insecure", no_argument, NULL, 'i' },
-#if 0
-    { "colour", no_argument, NULL, 'c' },
-    { "no-colour", no_argument, NULL, 'n' },
-#endif
     { NULL }
 };
 
@@ -130,7 +131,7 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
     char *proxy_url = NULL;
 
     while ((optc = getopt_long(test_argc, test_argv, 
-			       "d:hpc:i", longopts, NULL)) != -1) {
+			       "c:d:hip:qno", longopts, NULL)) != -1) {
 	switch (optc) {
 	case 'd':
             t_warning("the 'htdocs' argument is now ignored");
@@ -138,11 +139,20 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
 	case 'p':
 	    proxy_url = optarg;
 	    break;
+	case 's':
+	    system_proxy = 1;
+	    break;
 	case 'h':
 	    usage(stdout);
 	    exit(1);
         case 'c':
             client_certificate = optarg;
+            break;
+        case 'n':
+            *use_colour = 0;
+            break;
+        case 'q':
+            *quiet = 1;
             break;
         case 'i':
             tls_trust_everything = 1;
@@ -181,7 +191,14 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
 	    proxy_port = 8080;
 	}
 	proxy_hostname = proxy.host;
-    }		      
+    }
+
+#ifdef NE_FEATURE_LIBPXY
+    if (system_proxy && !ne_has_support(NE_FEATURE_LIBPXY)) {
+        t_context("No system proxy support in neon");
+        return FAILHARD;
+    }
+#endif
 
     use_tls = strcmp(u.scheme, "https") == 0;
     if (use_tls && !ne_has_support(NE_FEATURE_SSL)) {
@@ -258,6 +275,9 @@ static int init_session(ne_session *sess)
 {
     if (proxy_hostname) {
 	ne_session_proxy(sess, proxy_hostname, proxy_port);
+    }
+    else if (system_proxy) {
+        ne_session_system_proxy(sess, 0);
     }
 
     ne_set_useragent(sess, "litmus/" PACKAGE_VERSION);
