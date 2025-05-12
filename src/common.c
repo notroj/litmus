@@ -131,32 +131,35 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
     char *proxy_url = NULL;
 
     while ((optc = getopt_long(test_argc, test_argv, 
-			       "c:d:hip:qno", longopts, NULL)) != -1) {
+			       "c:d:hinop:qs", longopts, NULL)) != -1) {
 	switch (optc) {
+        case 'c':
+            client_certificate = optarg;
+            break;
 	case 'd':
             t_warning("the 'htdocs' argument is now ignored");
-	    break;
-	case 'p':
-	    proxy_url = optarg;
-	    break;
-	case 's':
-	    system_proxy = 1;
 	    break;
 	case 'h':
 	    usage(stdout);
 	    exit(1);
-        case 'c':
-            client_certificate = optarg;
+        case 'i':
+            tls_trust_everything = 1;
             break;
         case 'n':
             *use_colour = 0;
             break;
+        case 'o':
+            *use_colour = 1;
+            break;
+	case 'p':
+	    proxy_url = optarg;
+	    break;
         case 'q':
             *quiet = 1;
             break;
-        case 'i':
-            tls_trust_everything = 1;
-            break;
+	case 's':
+	    system_proxy = 1;
+	    break;
 	default:
 	    usage(stderr);
 	    exit(1);
