@@ -75,14 +75,21 @@ static const struct option longopts[] = {
     { NULL }
 };
 
+#define HELPOPTS                                                        \
+" -p, --proxy=URL            use given proxy server URL\n"              \
+" -s, --system-proxy         use proxy server configuration from system\n" \
+" -c, --client-cert=CERT     use given PKCS#12 client cert\n"           \
+" -u, --client-cert-uri=URI  use given client cert URI\n"               \
+" -i, --insecure             ignore TLS certificate verification failures\n" \
+" -q, --quiet                use abbreviated output\n"                  \
+" -n, --no-colour            enable colour in output\n"                 \
+" -o, --colour               disable colour in output\n"
+
 static void usage(FILE *output)
 {
     fprintf(output, 
 	    "\rUsage: %s [OPTIONS] URL [username password]\n"
-	    " Options are:\n"
-	    "    -d PROXY  use PROXY as proxy URL\n"
-            "    -c CERT   use a PKCS#12 client certificate\n",
-	    test_argv[0]);
+	    "Options are:\n" HELPOPTS, test_argv[0]);
 }
 
 static int test_connect(void)
