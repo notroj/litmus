@@ -59,7 +59,7 @@ static char *proxy_hostname = NULL;
 static unsigned int proxy_port;
 static int system_proxy;
 
-static char *client_certificate = NULL;
+static char *clicert_fn, *clicert_uri;
 
 static const struct option longopts[] = {
     { "htdocs", required_argument, NULL, 'd' },
@@ -70,6 +70,7 @@ static const struct option longopts[] = {
     { "proxy", required_argument, NULL, 'p' },
     { "system-proxy", no_argument, NULL, 's' },
     { "client-cert",  required_argument, NULL, 'c' },
+    { "client-cert-uri",  required_argument, NULL, 'u' },
     { "insecure", no_argument, NULL, 'i' },
     { NULL }
 };
@@ -139,10 +140,13 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
     char *proxy_url = NULL;
 
     while ((optc = getopt_long(argc, test_argv,
-			       "c:d:hinop:qs", longopts, NULL)) != -1) {
+			       "c:d:hinop:qsu:", longopts, NULL)) != -1) {
 	switch (optc) {
         case 'c':
-            client_certificate = optarg;
+            clicert_fn = optarg;
+            break;
+        case 'u':
+            clicert_uri = optarg;
             break;
 	case 'd':
             t_warning("the 'htdocs' argument is now ignored");
@@ -269,6 +273,44 @@ static int ignore_verify(void *ud, int fs, const ne_ssl_certificate *cert)
     return 0;
 }
 
+static int init_ssl(ne_session *sess)
+{
+    int got_clicert = clicert_fn || clicert_uri;
+    ne_ssl_client_cert *cc = NULL;
+
+    ne_ssl_trust_default_ca(sess);
+
+    if (tls_trust_everything) ne_ssl_set_verify(sess, ignore_verify, NULL);
+
+    if (!got_clicert) return OK;
+
+    if (clicert_fn)
+        cc = ne_ssl_clicert_read(clicert_fn);
+    else
+#if NE_MINIMUM_VERSION(0, 35)
+        cc = ne_ssl_clicert_fromuri(clicert_uri, 0);
+#else
+        t_warning("No client certificate URI support");
+#endif
+
+    if (!cc) {
+        t_context("Can not read the client certificate '%s'",
+                  clicert_fn ? clicert_fn : clicert_uri);
+        return FAILHARD;
+    }
+
+    if (ne_ssl_clicert_encrypted(cc)) {
+        t_context("Can not use encrypted the client certificate '%s'",
+                  clicert_fn ? clicert_fn : clicert_uri);
+        return FAILHARD;
+    }
+
+    ne_ssl_set_clicert(sess, cc);
+    ne_ssl_clicert_free(cc);
+
+    return OK;
+}
+
 static int init_session(ne_session *sess)
 {
     if (proxy_hostname) {
@@ -285,29 +327,7 @@ static int init_session(ne_session *sess)
     }
 
     if (use_tls) {
-        ne_ssl_trust_default_ca(sess);
-
-        if (tls_trust_everything) ne_ssl_set_verify(sess, ignore_verify, NULL);
-
-        if (client_certificate) {
-            ne_ssl_client_cert *cc;
-            
-            cc = ne_ssl_clicert_read(client_certificate);
-            if (!cc) {
-                t_context("Can not read the client certificate '%s'",
-                          client_certificate);
-                return FAILHARD;
-            }
-            if (ne_ssl_clicert_encrypted(cc)) {
-                if(ne_ssl_clicert_decrypt(cc, i_password)) {
-                    t_context("Invalid password for the certificate");
-                    return FAILHARD;
-                }
-            }
-
-            ne_ssl_set_clicert(sess, cc);
-            ne_ssl_clicert_free(cc);
-        }
+        CALL(init_ssl(sess));
     }
     
     return OK;
