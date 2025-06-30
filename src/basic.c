@@ -211,10 +211,10 @@ static int put_location(void)
     ONNREQ("PUT failed", ne_request_dispatch(req));
 
     ONV(ne_get_status(req)->code != 201,
-        ("PUT to create '%s' MUST return 201 (got %d) [RFC9110ẞ9.3.4]",
+        ("PUT to create '%s' MUST return 201 (got %d) [RFC9110:S9.3.4]",
          put_uri, ne_get_status(req)->code));
 
-    /* PUT to create resource might return Location with 201 [RFC9110ẞ15.3.2] */
+    /* PUT to create resource might return Location with 201 [RFC9110:S15.3.2] */
     s = ne_get_response_header(req, "Location");
     if (s) {
         ne_uri uri = {0};
