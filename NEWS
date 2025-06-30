@@ -2,8 +2,8 @@ Changes in version 0.17:
 * Default TLS SSL CAs are trusted by default; new --insecure/-i
   option to ignore verification failures for untrusted TLS certs.
 * New options --colour, --no-colour, --quiet, --system-proxy,
-  --client-cert-uri, --insecure
-* Update to neon 0.34.2.
+  --client-cert-uri, --insecure.
+* Update to neon 0.34.2. neon 0.29.x or later now required.
 
 Changes in version 0.16:
 * New tests:
