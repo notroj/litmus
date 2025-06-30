@@ -97,6 +97,7 @@ static int expect100(void)
 
 ne_test tests[] = {
     INIT_TESTS,
+    T(direct_connect),
 
     T(expect100),
 

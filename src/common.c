@@ -48,10 +48,8 @@ int i_class2 = 0;
 
 ne_session *i_session, *i_session2;
 
-const char *i_hostname, *i_scheme;
-unsigned int i_port;
+ne_uri i_origin;
 ne_sock_addr *i_address;
-char *i_path;
 
 static int use_tls, tls_trust_everything;
 
@@ -116,21 +114,31 @@ static int test_resolve(const char *hostname, const char *name)
 {
     i_address = ne_addr_resolve(hostname, 0);
     if (ne_addr_result(i_address)) {
-	char buf[256];
-	t_context("%s hostname `%s' lookup failed: %s", name, hostname,
-		  ne_addr_error(i_address, buf, sizeof buf));
-	return FAILHARD;
+       char buf[256];
+       t_context("%s hostname `%s' lookup failed: %s", name, hostname,
+                 ne_addr_error(i_address, buf, sizeof buf));
+       return FAILHARD;
     }
     return OK;
 }
 
+int direct_connect(void)
+{
+    if (proxy_hostname)
+        CALL(test_resolve(proxy_hostname, "proxy server"));
+    else
+        CALL(test_resolve(i_hostname, "server"));
+
+    return test_connect();
+}
+
 int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
 {
-    ne_uri u = {0}, proxy = {0};
+    ne_uri proxy = {0}, *server = &i_origin;
     int optc, n;
     char *proxy_url = NULL;
 
-    while ((optc = getopt_long(test_argc, test_argv, 
+    while ((optc = getopt_long(argc, test_argv,
 			       "c:d:hinop:qs", longopts, NULL)) != -1) {
 	switch (optc) {
         case 'c':
@@ -166,14 +174,17 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
 	}
     }
 
-    n = test_argc - optind;
+    n = argc - optind;
 
     if (n == 0 || n > 3 || n == 2) {
 	usage(stderr);
 	exit(1);
     }
 
-    if (ne_uri_parse(test_argv[optind], &u) || !u.host || !u.path || !u.scheme) {
+    NE_DEBUG(NE_DBG_HTTP, "litmus: Parsing URI %s...\n", argv[optind]);
+
+    if (ne_uri_parse(argv[optind], server) || !server->host
+        || !server->path || !server->scheme) {
 	t_context("couldn't parse server URL `%s'",
 		  test_argv[optind]);
 	return FAILHARD;
@@ -203,28 +214,19 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
     }
 #endif
 
-    use_tls = strcmp(u.scheme, "https") == 0;
+    use_tls = strcmp(server->scheme, "https") == 0;
     if (use_tls && !ne_has_support(NE_FEATURE_SSL)) {
         t_context("No SSL support, reconfigure using --with-ssl");
         return FAILHARD;
     }
 
-    i_hostname = u.host;
-    i_scheme = u.scheme;
-
-    if (u.port > 0) {
-	i_port = u.port;
-    } else {
-	if (use_tls) {
-	    i_port = 443;
-	} else {
-	    i_port = 80;
-	}
+    if (server->port == 0) {
+        server->port = use_tls ? 443 : 80;
     }
-    if (ne_path_has_trailing_slash(u.path)) {
-	i_path = u.path;
-    } else {
-	i_path = ne_concat(u.path, "/", NULL);
+    if (!ne_path_has_trailing_slash(server->path)) {
+        char *newp = ne_concat(server->path, "/", NULL);
+        ne_free(server->path);
+        server->path = newp;
     }
 
     if (n > 2) {
@@ -242,13 +244,6 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
 	}
     }
     
-    if (proxy_hostname)
-	CALL(test_resolve(proxy_hostname, "proxy server"));
-    else
-	CALL(test_resolve(i_hostname, "server"));
-
-    CALL(test_connect());
-
     return OK;
 }
 
@@ -339,8 +334,10 @@ static int make_space(void)
 
 int begin(void)
 {
-    i_session = ne_session_create(i_scheme, i_hostname, i_port);
-    i_session2 = ne_session_create(i_scheme, i_hostname, i_port);
+    const ne_uri *u = &i_origin;
+
+    i_session = ne_session_create(u->scheme, u->host, u->port);
+    i_session2 = ne_session_create(u->scheme, u->host, u->port);
 
     CALL(init_session(i_session));
     CALL(init_session(i_session2));
