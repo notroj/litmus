@@ -82,8 +82,8 @@ static const struct option longopts[] = {
 " -u, --client-cert-uri=URI  use given client cert URI\n"               \
 " -i, --insecure             ignore TLS certificate verification failures\n" \
 " -q, --quiet                use abbreviated output\n"                  \
-" -n, --no-colour            enable colour in output\n"                 \
-" -o, --colour               disable colour in output\n"
+" -n, --no-colour            disable colour in output\n"                 \
+" -o, --colour               enable colour in output\n"
 
 static void usage(FILE *output)
 {
@@ -307,7 +307,7 @@ static int init_ssl(ne_session *sess)
     }
 
     if (ne_ssl_clicert_encrypted(cc)) {
-        t_context("Can not use encrypted the client certificate '%s'",
+        t_context("Can not use encrypted client certificate '%s'",
                   clicert_fn ? clicert_fn : clicert_uri);
         return FAILHARD;
     }
