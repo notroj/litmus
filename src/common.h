@@ -37,13 +37,12 @@
 
 /* Standard test functions.
  * init: parses and verifies cmd-line args (URL, username/password)
- * test_connect: checks that server is running.
- * open_foo: opens the dummy 'foo' file.
+ * direct_connect: tests direct connection (optional, not recommended)
  * begin: opens session 'i_session' to server.
  * options: does an OPTIONS request on i_path, sets i_class2.
  * finish: closes i_session. */
 
-TF(init); TF(begin);
+TF(init); TF(begin); TF(direct_connect);
 TF(options); TF(finish);
 
 /* Standard initialisers for tests[] array: start everything up: */
@@ -56,10 +55,13 @@ TF(options); TF(finish);
 extern ne_session *i_session, *i_session2;
 
 /* server details. */
-extern const char *i_hostname;
-extern unsigned int i_port;
+extern ne_uri i_origin;
+#define i_path (i_origin.path)
+#define i_port (i_origin.port)
+#define i_hostname (i_origin.host)
+
+/* If test_direct_connect() is invoked, this will be non-NULL. */
 extern ne_sock_addr *i_address;
-extern char *i_path;
 
 extern int i_class2; /* true if server is a class 2 DAV server. */
 
