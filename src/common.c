@@ -160,7 +160,7 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
 	    break;
 	case 'h':
 	    usage(stdout);
-	    exit(1);
+	    exit(0);
         case 'i':
             tls_trust_everything = 1;
             break;
