@@ -1,6 +1,6 @@
 /* 
    litmus: WebDAV server test suite: common routines
-   Copyright (C) 2001-2004, 2011, Joe Orton <joe@manyfish.co.uk>
+   Copyright (C) 2001-2025, Joe Orton <joe@manyfish.co.uk>
                                                                      
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -382,6 +382,7 @@ int begin(void)
 int finish(void)
 {
     ne_session_destroy(i_session);
+    ne_session_destroy(i_session2);
     return OK;
 }
 
