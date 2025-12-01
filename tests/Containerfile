@@ -1,0 +1,5 @@
+FROM quay.io/fedora/fedora
+RUN dnf -y install httpd-core && dnf -y clean all
+COPY httpd.conf /etc/httpd/conf.d/dav.conf
+RUN mkdir /var/www/html/dav
+RUN chown apache:apache /var/www/html/dav

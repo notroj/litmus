@@ -100,6 +100,9 @@ distclean: clean
 	@cd neon/src && $(MAKE) distclean
 	rm Makefile litmus config.log config.h config.status
 
+test-httpd: litmus $(TESTS)
+	TESTROOT="$(top_builddir)" ./tests/httpd $(OPTS)
+
 .c.o:
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
