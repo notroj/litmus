@@ -53,6 +53,8 @@ all: $(TESTS)
 	@echo ' or  make URL=http://dav.server/path/ CREDS="uname passwd" check'
 	@echo ""
 
+.PHONY: install check test-httpd clean distclean subdirs
+
 litmus: litmus.in
 	@./config.status $@
 
@@ -101,7 +103,7 @@ distclean: clean
 	rm Makefile litmus config.log config.h config.status
 
 test-httpd: litmus $(TESTS)
-	TESTROOT="$(top_builddir)" ./tests/httpd $(OPTS)
+	TESTROOT="$(top_builddir)" $(top_builddir)/tests/httpd $(OPTS)
 
 .c.o:
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
