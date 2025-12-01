@@ -28,7 +28,7 @@ AR = @AR@
 RANLIB = @RANLIB@
 
 LIBOBJS = @LIBOBJS@
-TESTOBJS = src/common.o test-common/child.o test-common/tests.o
+TESTOBJS = src/common.o test-common/tests.o
 HDRS = src/common.h test-common/tests.h config.h
 
 TESTS = @TESTS@
