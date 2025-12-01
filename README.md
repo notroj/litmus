@@ -31,6 +31,18 @@ Tests include:
 Bugs, feature requests and patches can be sent in via the GitHub
 repository: https://github.com/notroj/litmus
 
+## Building
+
+To build _litmus_ from source, try:
+
+~~~
+$ git clone --recurse-submodules https://github.com/notroj/litmus
+$ cd litmus
+$ ./autogen.sh
+$ ./configure
+$ make
+~~~
+
 ## Usage
 
 _litmus_ comprises of a set of test suites as separate executables: each
@@ -114,6 +126,16 @@ PKCS#12 format. e.g.:
 
 ~~~
  $ litmus --client-cert=client.p12 https://dav.example.com/path/
+~~~
+
+## Developing tests
+
+When developing new test cases, or to check that your built copy of
+_litmus_ works properly, the test suite can be run against Apache
+httpd inside in a container:
+
+~~~
+ $ make test-httpd
 ~~~
 
 ## Copyright and licensing
