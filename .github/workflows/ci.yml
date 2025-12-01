@@ -19,7 +19,7 @@ jobs:
       if: contains(matrix.neon, 'included-neon') != true
     - run: ./autogen.sh
     - run: ./configure --prefix=/tmp/litmus-root ${{ matrix.neon }}
-    - run: make
+    - run: make -j`nproc`
     - run: make install
       if: matrix.install == true
     - run: ./litmus --version
