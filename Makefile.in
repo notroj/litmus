@@ -35,7 +35,6 @@ TESTS = @TESTS@
 
 URL = http://`hostname`/dav/
 CREDS = `whoami` `whoami`
-DIR = .
 OPTS = 
 
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -58,11 +57,8 @@ litmus: litmus.in
 	@./config.status $@
 
 check: $(TESTS) litmus
-	@test -d "$(DIR)" || mkdir "$(DIR)"
-	@rm -f $(DIR)/debug.log $(DIR)/child.log
-	@if test "$(DIR)" != "."; then echo "TESTS FOR $(DIR) ---"; fi
-	@cd $(DIR) && TESTROOT="$(top_builddir)" \
-	 $(top_builddir)/litmus $(OPTS) $(URL) $(CREDS)
+	@rm -f debug.log child.log
+	@TESTROOT="$(top_builddir)" $(top_builddir)/litmus $(OPTS) $(URL) $(CREDS)
 
 install: $(TESTS) litmus 
 	$(INSTALL) -d $(DESTDIR)$(bindir)
