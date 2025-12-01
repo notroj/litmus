@@ -21,3 +21,5 @@ jobs:
     - run: ./configure --prefix=/tmp/litmus-root ${{ matrix.neon }}
     - run: make
     - run: if ${{matrix.install}}; then make install; fi
+    - run: ./litmus --version
+    - run: ./litmus --help
