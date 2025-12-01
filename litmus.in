@@ -32,18 +32,18 @@ Significant environment variables:
 
 Feedback via <https://github.com/notroj/litmus>
 EOF
-    exit 1
+    exit $1
 }
 
 nofail=0
 
 case $1 in
---help|-h) usage ;;
+--help|-h) usage 0 ;;
 --keep-going|-k) nofail=1; shift ;;
 --version) echo litmus @PACKAGE_VERSION@; exit 0 ;;
 esac
 
-test "$#" = "0" && usage
+test "$#" = "0" && usage 1
 
 RV=0
 
