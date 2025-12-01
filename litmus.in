@@ -45,17 +45,23 @@ esac
 
 test "$#" = "0" && usage
 
+RV=0
+
 for t in $TESTS; do
     tprog="${TESTROOT}/${t}"
     if test -x ${tprog}; then
-	if ${tprog} "$@"; then
-	    : pass
-	elif test $nofail -eq 0; then
-	    echo "See debug.log for network/debug traces."
-	    exit 1
-	fi
+        if ${tprog} "$@"; then
+            : pass
+        elif test $nofail -eq 0; then
+            echo "See debug.log for network/debug traces."
+            exit 1
+        else
+            RV=1
+        fi
     else
-	echo "ERROR: Could not find ${tprog}"
-	exit 1
+        echo "ERROR: Could not find ${tprog}"
+        exit 1
     fi
 done
+
+exit $RV
