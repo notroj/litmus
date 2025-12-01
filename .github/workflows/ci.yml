@@ -20,6 +20,9 @@ jobs:
     - run: ./autogen.sh
     - run: ./configure --prefix=/tmp/litmus-root ${{ matrix.neon }}
     - run: make
-    - run: if ${{matrix.install}}; then make install; fi
+    - run: make install
+      if: matrix.install == true
     - run: ./litmus --version
     - run: ./litmus --help
+    - run: make test-httpd
+      if: matrix.install == false

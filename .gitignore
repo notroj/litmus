@@ -19,3 +19,4 @@ basic
 /config.sub
 /ltmain.sh
 /largefile
+/tests/httpd

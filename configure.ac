@@ -17,6 +17,8 @@ AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
 
+AC_CHECK_PROGS(PODMAN, [podman docker])
+
 dnl List of tests
 AC_SUBST([TESTS], ["basic copymove props locks http"])
 
@@ -43,6 +45,7 @@ NEON_WARNINGS
 CPPFLAGS="$CPPFLAGS -I\${top_builddir} -DNEON_TEST_INIT=litmus_init"
 
 AC_CONFIG_FILES([litmus], [chmod +x litmus])
+AC_CONFIG_FILES([tests/httpd:tests/httpd.sh], [chmod +x tests/httpd])
 AC_CONFIG_FILES([Makefile neon/src/Makefile])
 
 AC_OUTPUT
