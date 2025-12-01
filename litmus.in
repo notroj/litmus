@@ -1,11 +1,9 @@
 #!/bin/sh
-# Copyright (c) 2001-2005, 2008 Joe Orton <https://github.com/notroj/litmus>
+# Copyright (c) 2001-2025 Joe Orton <https://github.com/notroj/litmus>
 
 prefix=@prefix@
 exec_prefix=@prefix@
 libexecdir=@libexecdir@
-datadir=@datadir@
-datarootdir=@datarootdir@
 
 TESTROOT=${TESTROOT-"@libexecdir@/litmus"}
 TESTS=${TESTS-"@TESTS@"}
