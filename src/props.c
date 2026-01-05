@@ -25,6 +25,7 @@
 #include <ne_props.h>
 #include <ne_uri.h>
 #include <ne_dates.h>
+#include <ne_basic.h>
 
 #include "common.h"
 
@@ -353,16 +354,25 @@ static int propfind_returns_wellformed(const char *msg, const char *body)
 {
     ne_xml_parser *p = ne_xml_create();
     ne_request *req = ne_request_create(i_session, "PROPFIND", prop_uri);
+    ne_content_type ctype;
 
     ne_set_request_body_buffer(req, body, strlen(body));
     ne_add_request_header(req, "Content-Type", NE_XML_MEDIA_TYPE);
 
     ne_add_response_body_reader(req, ne_accept_207, ne_xml_parse_v, p);
     ONMREQ("PROPFIND", prop_uri, ne_request_dispatch(req));
-    
+
     ONV(ne_xml_failed(p), ("PROPFIND response %s was not well-formed: %s",
                            msg, ne_xml_get_error(p)));
 
+    ONN("no Content-Type in PROPFIND response",
+        ne_get_content_type(req, &ctype) != 0);
+    ONV((strcmp(ctype.type, "text") != 0
+         && strcmp(ctype.type, "application") != 0)
+        || strcmp(ctype.subtype, "xml"),
+        ("unexpected content-type '%s/%s'", ctype.type, ctype.subtype));
+
+    ne_free(ctype.value);
     ne_xml_destroy(p);
     ne_request_destroy(req);
     return OK;
