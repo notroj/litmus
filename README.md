@@ -92,10 +92,10 @@ or
 To use a more compact output format, use the `--quiet` option. By
 default, _litmus_ uses colour in the output if the terminal is a
 TTY. To override the default, use either the `--colour` or
-`--no-colour` options to forcible enable or disable use of colour,
+`--no-colour` options to forcibly enable or disable use of colour,
 respectively.
 
-To use an HTTP proxy server, pass the --proxy argument using an HTTP
+To use an HTTP proxy server, pass the `--proxy` argument using an HTTP
 URI for the proxy server, for example:
 
 ~~~
