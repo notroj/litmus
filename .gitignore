@@ -20,3 +20,5 @@ basic
 /ltmain.sh
 /largefile
 /tests/httpd
+/lockbomb
+/lockbomb-single

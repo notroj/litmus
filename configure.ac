@@ -40,6 +40,11 @@ NEON_FORMAT(long long)
 NEON_DEBUG
 NEON_WARNINGS
 
+AX_PTHREAD([THREADS_TEST="lockbomb"
+AC_DEFINE([HAVE_PTHREADS], 1, [Define if pthreads are supported])
+])
+AC_SUBST(THREADS_TEST)
+
 # Define NEON_TEST_INIT so that litmus_init() is used as test
 # framework initializer in all builds.
 CPPFLAGS="$CPPFLAGS -I\${top_builddir} -DNEON_TEST_INIT=litmus_init"
