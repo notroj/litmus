@@ -13,6 +13,9 @@ datarootdir = @datarootdir@
 CC = @CC@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @DEFS@ @CPPFLAGS@ -I$(top_srcdir)/src -I$(top_srcdir)/test-common
+PTHREAD_CC = @PTHREAD_CC@
+PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
+PTHREAD_LIBS = @PTHREAD_LIBS@
 
 LDFLAGS = @LDFLAGS@
 LIBS = @NEON_LIBS@ @LIBS@
@@ -31,6 +34,7 @@ LIBOBJS = @LIBOBJS@
 TESTOBJS = src/common.o test-common/tests.o
 HDRS = src/common.h test-common/tests.h config.h
 
+ALL_TESTS = @TESTS@ @THREADS_TEST@ largefile http lockbomb-single
 TESTS = @TESTS@
 
 URL = http://`hostname`/dav/
@@ -45,7 +49,7 @@ INSTALL = @INSTALL@
 # though; not sure why.
 ODEPS = subdirs libtest.a @LIBOBJS@
 
-all: $(TESTS)
+all: $(ALL_TESTS)
 	@echo
 	@echo "  Now run:"
 	@echo ""
@@ -62,11 +66,11 @@ check: $(TESTS) litmus
 	@rm -f debug.log child.log
 	@TESTROOT="$(top_builddir)" $(top_builddir)/litmus $(OPTS) $(URL) $(CREDS)
 
-install: $(TESTS) litmus 
+install: $(ALL_TESTS) litmus
 	$(INSTALL) -d $(DESTDIR)$(bindir)
 	$(INSTALL) -d $(DESTDIR)$(libexecdir)/litmus
 	$(INSTALL_PROGRAM) $(top_builddir)/litmus $(DESTDIR)$(bindir)/litmus
-	for t in $(TESTS); do \
+	for t in $(ALL_TESTS); do \
 	  $(INSTALL_PROGRAM) $(top_builddir)/$$t $(DESTDIR)$(libexecdir)/litmus/$$t; done
 
 props: src/props.o $(ODEPS)
@@ -86,6 +90,12 @@ http: src/http.o $(ODEPS)
 
 largefile: src/largefile.o $(ODEPS)
 	$(CC) $(LDFLAGS) -o $@ src/largefile.o $(ALL_LIBS)
+
+lockbomb: src/lockbomb.o $(ODEPS)
+	$(PTHREAD_CC) $(PTHREAD_CFLAGS) $(LDFLAGS) -o $@ src/lockbomb.o $(PTHREAD_LIBS) $(ALL_LIBS)
+
+lockbomb-single: src/lockbomb-single.o $(ODEPS)
+	$(CC) $(LDFLAGS) -o $@ src/lockbomb-single.o $(ALL_LIBS)
 
 subdirs:
 	@cd neon/src && $(MAKE)
@@ -118,3 +128,8 @@ src/locks.o: src/locks.c $(HDRS)
 src/props.o: src/props.c $(HDRS)
 src/http.o: src/http.c $(HDRS)
 src/largefile.o: src/largefile.c $(HDRS)
+src/lockbomb.o: src/lockbomb.c $(HDRS)
+	$(PTHREAD_CC) $(CPPFLAGS) $(PTHREAD_CFLAGS) $(CFLAGS) -c $< -o $@
+
+src/lockbomb-single.o: src/lockbomb.c $(HDRS)
+	$(CC) $(CPPFLAGS) -DTHREADS=1 $(CFLAGS) -c $< -o $@
