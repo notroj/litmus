@@ -29,7 +29,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#ifdef HAVE_PTHREADS
+#if defined(HAVE_PTHREADS) && (THREADS > 1)
 #include <pthread.h>
 #endif
 
@@ -46,7 +46,7 @@
 #endif
 
 struct thrarg {
-#ifdef HAVE_PTHREADS
+#if defined(HAVE_PTHREADS) && (THREADS > 1)
     pthread_t thd;
 #endif
     ne_uri uri;

@@ -104,9 +104,9 @@ libtest.a: $(TESTOBJS)
 	$(AR) cru $@ $(TESTOBJS)
 	$(RANLIB) $@
 
-clean:	
+clean:
 	@cd neon/src && $(MAKE) clean
-	rm -f */*.o $(TESTS) largefile libtest.a *~ debug.log child.log
+	rm -f */*.o $(ALL_TESTS) libtest.a *~ debug.log child.log
 
 distclean: clean
 	@cd neon/src && $(MAKE) distclean
