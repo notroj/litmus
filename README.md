@@ -128,6 +128,23 @@ PKCS#12 format. e.g.:
  $ litmus --client-cert=client.p12 https://dav.example.com/path/
 ~~~
 
+## Optional tests
+
+Since version 0.18, _litmus_ includes optional test suites which are
+not run by default when invoking the `litmus` script (or by running
+`make check` from the source directory), as follows:
+
+* `lockbomb` and `lockbomb-single` are stress tests, simulating 20,000
+  iterations of `LOCK`/`UNLOCK` on a resource. `lockbomb` requires
+  POSIX threads to build and runs 20 threads in parallel each
+  performing the lock/unlock sequence. `lockbomb-single` is
+  single-threaded.
+
+* `protected` tests for various operations on a protected metadata
+  directory. By default, `.DAV` is used, to test for `CVE-2026-42535`
+  in `mod_dav_fs`, but another directory name can be tested by setting
+  the `$TEST_PROTECTED` environment variable.
+
 ## Developing tests
 
 When developing new test cases, or to check that your built copy of

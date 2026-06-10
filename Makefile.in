@@ -34,7 +34,7 @@ LIBOBJS = @LIBOBJS@
 TESTOBJS = src/common.o test-common/tests.o
 HDRS = src/common.h test-common/tests.h config.h
 
-ALL_TESTS = @TESTS@ @THREADS_TEST@ largefile http lockbomb-single
+ALL_TESTS = @TESTS@ @THREADS_TEST@ largefile http lockbomb-single protected
 TESTS = @TESTS@
 
 URL = http://`hostname`/dav/
@@ -94,6 +94,9 @@ largefile: src/largefile.o $(ODEPS)
 lockbomb: src/lockbomb.o $(ODEPS)
 	$(PTHREAD_CC) $(PTHREAD_CFLAGS) $(LDFLAGS) -o $@ src/lockbomb.o $(PTHREAD_LIBS) $(ALL_LIBS)
 
+protected: src/protected.o $(ODEPS)
+	$(CC) $(LDFLAGS) -o $@ src/protected.o $(ALL_LIBS)
+
 lockbomb-single: src/lockbomb-single.o $(ODEPS)
 	$(CC) $(LDFLAGS) -o $@ src/lockbomb-single.o $(ALL_LIBS)
 
@@ -128,6 +131,7 @@ src/locks.o: src/locks.c $(HDRS)
 src/props.o: src/props.c $(HDRS)
 src/http.o: src/http.c $(HDRS)
 src/largefile.o: src/largefile.c $(HDRS)
+src/protected.o: src/protected.c $(HDRS)
 src/lockbomb.o: src/lockbomb.c $(HDRS)
 	$(PTHREAD_CC) $(CPPFLAGS) $(PTHREAD_CFLAGS) $(CFLAGS) -c $< -o $@
 
