@@ -29,7 +29,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#if defined(HAVE_PTHREADS) && (THREADS > 1)
+#if defined(HAVE_PTHREADS)
 #include <pthread.h>
 #endif
 
