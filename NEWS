@@ -1,3 +1,12 @@
+Changes in version 0.18:
+* New optional test suites:
+ - lockbomb, lockbomb-single: stress tests for locking
+ - protected: security test for protected directories
+* Bug fixes
+ - props: propfind_returns_wellformed() uses Depth: 0 header in
+          PROPFIND request, response content-type now verified
+* Update to neon 0.37.1
+
 Changes in version 0.17:
 * Default TLS SSL CAs are trusted by default; new --insecure/-i
   option to ignore verification failures for untrusted TLS certs.
