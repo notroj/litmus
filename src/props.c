@@ -358,6 +358,7 @@ static int propfind_returns_wellformed(const char *msg, const char *body)
 
     ne_set_request_body_buffer(req, body, strlen(body));
     ne_add_request_header(req, "Content-Type", NE_XML_MEDIA_TYPE);
+    ne_add_depth_header(req, NE_DEPTH_ZERO);
 
     ne_add_response_body_reader(req, ne_accept_207, ne_xml_parse_v, p);
     ONMREQ("PROPFIND", prop_uri, ne_request_dispatch(req));
