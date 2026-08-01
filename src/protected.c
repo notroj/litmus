@@ -177,11 +177,31 @@ static int copy_into(void)
     dest = ne_concat(i_path, protected_name, "/copied.txt", NULL);
 
     ONN("COPY into protected directory should be rejected",
-        ne_copy(i_session, 0, NE_DEPTH_INFINITE, src_uri, dest) != NE_ERROR);
+        ne_copy(i_session, 0, NE_DEPTH_INFINITE, prot_path, dest) != NE_ERROR);
 
     ONV(GETSTATUS != 403 && GETSTATUS != 405 && GETSTATUS != 409
         && GETSTATUS != 502 && GETSTATUS != 404,
         ("COPY into protected directory gave %d, expected error",
+         GETSTATUS));
+
+    ne_free(dest);
+    return OK;
+}
+
+static int copy_outside(void)
+{
+    char *dest;
+
+    PRECOND(prot_ok);
+
+    dest = ne_concat(i_path, "/outside.txt", NULL);
+
+    ONN("COPY from protected directory should be rejected",
+        ne_copy(i_session, 0, NE_DEPTH_INFINITE, prot_path, dest) != NE_ERROR);
+
+    ONV(GETSTATUS != 403 && GETSTATUS != 405 && GETSTATUS != 409
+        && GETSTATUS != 502 && GETSTATUS != 404,
+        ("COPY from protected directory gave %d, expected error",
          GETSTATUS));
 
     ne_free(dest);
@@ -222,6 +242,26 @@ static int copy_from(void)
 
     ONV(GETSTATUS != 403 && GETSTATUS != 405 && GETSTATUS != 502,
         ("COPY from protected directory gave %d, expected error",
+         GETSTATUS));
+
+    ne_delete(i_session, dest);
+    ne_free(dest);
+    return OK;
+}
+
+static int copy_direct(void)
+{
+    char *dest;
+
+    PRECOND(prot_ok);
+
+    dest = ne_concat(i_path, "unprotected", NULL);
+
+    ONN("COPY of protected directory should be rejected",
+        ne_copy(i_session, 0, NE_DEPTH_INFINITE, prot_coll, dest) != NE_ERROR);
+
+    ONV(GETSTATUS != 403 && GETSTATUS != 405 && GETSTATUS != 502,
+        ("COPY of protected directory gave %d, expected error",
          GETSTATUS));
 
     ne_delete(i_session, dest);
@@ -402,19 +442,17 @@ ne_test tests[] = {
     T(mkcol_protected),
     T(put),
     T(get),
-    T(mkcol),
-    T(move_into),
-    T(prepare),
-    T(copy_into),
-    T(prepare),
-    T(move_from),
-    T(prepare),
-    T(copy_from),
+    T(mkcol), T(move_into),
+    T(prepare), T(copy_into),
+    T(prepare), T(copy_outside), T(prepare), T(move_from),
+    T(prepare), T(copy_from),
+    T(prepare), T(copy_direct),
     T(delete),
     T(delete_coll),
     T(move_over),
     T(prepare),
     T(copy_over),
+    T(copy_direct),
 
     T(lock),
     T(lock_coll),
