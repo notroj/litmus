@@ -26,3 +26,5 @@ jobs:
     - run: ./litmus --help
     - run: make test-httpd
       if: matrix.install == false
+    - run: make test-httpd TESTS=protected
+      if: matrix.install == false
