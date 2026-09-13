@@ -46,6 +46,8 @@
 
 int i_class2 = 0;
 
+int i_status_code, i_status_code2;
+
 ne_session *i_session, *i_session2;
 
 ne_uri i_origin;
@@ -274,6 +276,28 @@ static void i_pre_send(ne_request *req, void *userdata, ne_buffer *hdr)
                        name, test_suite, test_num, tests[test_num].name);
 }
 
+/* Clear the recorded status-code so that a request which fails before
+ * a response is read cannot leave the previous request's code behind;
+ * called exactly once per request. */
+static void i_create_request(ne_request *req, void *userdata,
+                             const char *method, const char *target)
+{
+    int *code = userdata;
+
+    *code = 0;
+}
+
+/* Record the response status-code for the session. */
+static int i_post_send(ne_request *req, void *userdata,
+                       const ne_status *status)
+{
+    int *code = userdata;
+
+    *code = status->code;
+
+    return NE_OK;
+}
+
 /* Allow all certificates. */
 static int ignore_verify(void *ud, int fs, const ne_ssl_certificate *cert)
 {
@@ -373,7 +397,14 @@ int begin(void)
      * test number and session. */
     ne_hook_pre_send(i_session, i_pre_send, "X-Litmus");
     ne_hook_pre_send(i_session2, i_pre_send, "X-Litmus-Second");
-    
+
+    /* Record the response status-code for each session, so tests can
+     * check it without reparsing the session error string. */
+    ne_hook_create_request(i_session, i_create_request, &i_status_code);
+    ne_hook_create_request(i_session2, i_create_request, &i_status_code2);
+    ne_hook_post_send(i_session, i_post_send, &i_status_code);
+    ne_hook_post_send(i_session2, i_post_send, &i_status_code2);
+
     CALL(make_space());
     
     return OK;

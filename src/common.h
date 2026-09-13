@@ -92,12 +92,17 @@ int put_buffer(ne_session *sess, const char *path, const char *content);
 /* similarly for second session. */
 #define ONNREQ2(msg, x) do { int _ret = (x); if (_ret) { t_context("%s:\n%s", msg, ne_get_error(i_session2)); return FAIL; } } while (0)
 
-#define GETSTATUS (atoi(ne_get_error(i_session)))
+/* Status-code of the most recent response on i_session and i_session2
+ * respectively, recorded by a post_send hook; zero if the request
+ * failed before a response was read. */
+extern int i_status_code, i_status_code2;
+
+#define GETSTATUS (i_status_code)
 
 /* STATUS(404) returns non-zero if status code is not 404 */
 #define STATUS(code) (GETSTATUS != (code))
 
-#define GETSTATUS2 (atoi(ne_get_error((i_session2))))
+#define GETSTATUS2 (i_status_code2)
 #define STATUS2(code) (GETSTATUS2 != (code))
 
 #endif /* INTEROP_H */
