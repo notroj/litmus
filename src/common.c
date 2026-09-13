@@ -44,7 +44,7 @@
 
 #include "common.h"
 
-int i_class2 = 0;
+unsigned int i_caps = 0;
 
 int i_status_code, i_status_code2;
 
@@ -461,17 +461,14 @@ int upload_foo(const char *path)
 
 int options(void)
 {
-    ne_server_capabilities caps = {0};
-    
-    ONV(ne_options(i_session, i_path, &caps),
-	("OPTIONS on base collection `%s': %s", i_path, 
+    ONV(ne_options2(i_session, i_path, &i_caps),
+	("OPTIONS on base collection `%s': %s", i_path,
 	 ne_get_error(i_session)));
 
-    ONN("server does not claim WebDAV compliance", caps.dav_class1 == 0);
-    if (caps.dav_class2 == 0) {
+    ONN("server does not claim WebDAV compliance", !i_class1);
+    if (!i_class2) {
 	t_warning("server does not claim Class 2 compliance");
     }
-    i_class2 = caps.dav_class2;
 
     return OK;
 }

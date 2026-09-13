@@ -39,7 +39,7 @@
  * init: parses and verifies cmd-line args (URL, username/password)
  * direct_connect: tests direct connection (optional, not recommended)
  * begin: opens session 'i_session' to server.
- * options: does an OPTIONS request on i_path, sets i_class2.
+ * options: does an OPTIONS request on i_path, sets i_caps.
  * finish: closes i_session. */
 
 TF(init); TF(begin); TF(direct_connect);
@@ -63,7 +63,16 @@ extern ne_uri i_origin;
 /* If test_direct_connect() is invoked, this will be non-NULL. */
 extern ne_sock_addr *i_address;
 
-extern int i_class2; /* true if server is a class 2 DAV server. */
+/* Bit-mask of NE_CAP_* capabilities advertised by the server, as
+ * retrieved by the options() test; zero until that test has run. */
+extern unsigned int i_caps;
+
+/* Compliance classes claimed in the DAV header.  Class 3 means the
+ * server implements the RFC 4918 revisions; a server claiming only
+ * class 1 or 2 is answering to RFC 2518. */
+#define i_class1 (i_caps & NE_CAP_DAV_CLASS1)
+#define i_class2 (i_caps & NE_CAP_DAV_CLASS2)
+#define i_class3 (i_caps & NE_CAP_DAV_CLASS3)
 
 /* Upload htdocs/foo to i_path + path */
 int upload_foo(const char *path);
