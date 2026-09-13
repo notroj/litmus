@@ -113,12 +113,12 @@ static int copy_abspath(void)
     ret = ne_copy(i_session, 0, NE_DEPTH_INFINITE, src, dest);
     ne_set_session_flag(i_session, NE_SESSFLAG_RFC4918, 0);
 
-    if (ret != NE_OK) {
-        t_warning("COPY Destination header should allow "
-                  "absolute path (RFC4918:S10.3): got %s",
-                  ne_get_error(i_session));
-    }
-    else if (STATUS(201)) {
+    ONV(ret != NE_OK,
+        ("COPY with an absolute path in the Destination header must be "
+         "supported by a class 3 server (RFC4918:S10.3): %s",
+         ne_get_error(i_session)));
+
+    if (STATUS(201)) {
 	t_warning("COPY to new resource should give 201 (RFC4918:S9.8.5)");
     }
 
