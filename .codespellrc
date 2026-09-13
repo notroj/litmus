@@ -1,5 +1,5 @@
 [codespell]
-skip = .git,*.pdf,*.svg,.codespellrc,ChangeLog.CVS,config.*
+skip = .git,*.pdf,*.svg,.codespellrc,ChangeLog.CVS,config.*,doc/*.md
 check-hidden = true
 ignore-regex = \bONS\b|.*codespell-ignore.*
 # ignore-words-list =
