@@ -74,7 +74,8 @@ static void d0_results(void *userdata, const ne_uri *uri,
 	struct private *priv = ne_propset_private(rset);
 	if (!priv->collection) {
 	    r->result = FAIL;
-	    t_context("Base collection did not define {DAV:}collection property");
+	    t_context("Base collection did not define {DAV:}collection property "
+                      "(RFC4918:S15.9)");
 	    return;
 	} else {
 	    r->result = 0;
@@ -141,14 +142,14 @@ static int do_invalid_pfind(const char *body, const char *failmsg)
     ne_add_depth_header(req, NE_DEPTH_ZERO);
 
     if (ne_request_dispatch(req)) {
-	t_context("PROPFIND with %s failed: %s", failmsg,
-		  ne_get_error(i_session));
-	result = FAIL;
+        t_context("PROPFIND with %s failed: %s", failmsg,
+                  ne_get_error(i_session));
+        result = FAIL;
     }
     else if (STATUS(400)) {
-	t_context("PROPFIND with %s got %d response not 400",
-		  failmsg, GETSTATUS);
-	result = FAIL;
+        t_context("PROPFIND with %s got %d response not 400 (RFC4918:S8.2)",
+                  failmsg, GETSTATUS);
+        result = FAIL;
     }
 
     ne_request_destroy(req);
@@ -248,14 +249,15 @@ static void pg_results(void *userdata, const ne_uri *uri,
 
 	    if (value == NULL) {
 		if (status == NULL) {
-		    t_warning("Property %d omitted from results with no status",
+		    t_warning("Property %d omitted from results with no status "
+                              "(RFC4918:S9.1)",
 			      n);
 		} else if (status->code != 404) {
-		    t_warning("Status for missing property %d was not 404", n);
+		    t_warning("Status for missing property %d was not 404 (RFC4918:S9.1)", n);
 		}
 	    } else {
 		r->result = FAIL;
-		t_context("Deleted property `{%s}%s' was still present",
+		t_context("Deleted property `{%s}%s' was still present (RFC4918:S9.2)",
 			  NSPACE(propnames[n].nspace), propnames[n].name);
 	    }
 	} else {
@@ -306,7 +308,7 @@ static int propmove(void)
     
     ne_delete(i_session, dest);
 
-    ONM2REQ("MOVE", prop_uri, dest,
+    ONM2REQ("MOVE (RFC4918:S9.9.1)", prop_uri, dest,
 	    ne_move(i_session, 0, prop_uri, dest));
 
     free(prop_uri);
@@ -366,15 +368,15 @@ static int propfind_returns_wellformed(const char *msg, const char *body)
     ne_add_response_body_reader(req, ne_accept_207, ne_xml_parse_v, p);
     ONMREQ("PROPFIND", prop_uri, ne_request_dispatch(req));
 
-    ONV(ne_xml_failed(p), ("PROPFIND response %s was not well-formed: %s",
+    ONV(ne_xml_failed(p), ("PROPFIND response %s was not well-formed (RFC4918:S8.2): %s",
                            msg, ne_xml_get_error(p)));
 
-    ONN("no Content-Type in PROPFIND response",
+    ONN("no Content-Type in PROPFIND response (RFC4918:S9.1)",
         ne_get_content_type(req, &ctype) != 0);
     ONV((strcmp(ctype.type, "text") != 0
          && strcmp(ctype.type, "application") != 0)
         || strcmp(ctype.subtype, "xml"),
-        ("unexpected content-type '%s/%s'", ctype.type, ctype.subtype));
+        ("unexpected content-type '%s/%s' (RFC4918:S9.1)", ctype.type, ctype.subtype));
 
     ne_free(ctype.value);
     ne_xml_destroy(p);
@@ -416,7 +418,7 @@ static int propnullns(void)
     pops[1].name = NULL;
     propnames[1].name = NULL;
 
-    CALL(do_patch("PROPPATCH of property with null namespace (see FAQ)",
+    CALL(do_patch("PROPPATCH of property with null namespace, see FAQ (RFC4918:S17)",
                   XML_DECL
 		  "<propertyupdate xmlns=\"DAV:\"><set><prop>"
 		  "<nonamespace xmlns=\"\">randomvalue</nonamespace>" 
@@ -441,7 +443,7 @@ static int prophighunicode(void)
     pops[1].name = NULL;
     propnames[1].name = NULL;
 
-    CALL(do_patch("PROPPATCH of property with high unicode value",
+    CALL(do_patch("PROPPATCH of property with high unicode value (RFC4918:S17)",
 		  XML_DECL "<propertyupdate xmlns='DAV:'><set><prop>"
 		  "<high-unicode xmlns='" NS "'>&#65536;</high-unicode>"
 		  "</prop></set></propertyupdate>"));
@@ -461,7 +463,7 @@ static int propremoveset(void)
     propnames[0].name = "removeset";
     values[0] = "y";
  
-    CALL(do_patch("PROPPATCH remove then set",
+    CALL(do_patch("PROPPATCH remove then set (RFC4918:S9.2)",
 		  XML_DECL "<propertyupdate xmlns='DAV:'>"
       "<remove><prop><removeset xmlns='" NS "'/></prop></remove>"
       "<set><prop><removeset xmlns='" NS "'>x</removeset></prop></set>"
@@ -483,7 +485,7 @@ static int propsetremove(void)
     propnames[0].name = "removeset";
     values[0] = NULL;
  
-    CALL(do_patch("PROPPATCH set then remove",
+    CALL(do_patch("PROPPATCH set then remove (RFC4918:S9.2)",
 		  XML_DECL "<propertyupdate xmlns='DAV:'>"
       "<set><prop><removeset xmlns='" NS "'>x</removeset></prop></set>"
       "<remove><prop><removeset xmlns='" NS "'/></prop></remove>"
@@ -508,7 +510,7 @@ static int propvalnspace(void)
     pops[1].name = NULL;
     propnames[1].name = NULL;
 
-    CALL(do_patch("PROPPATCH of property with value defining namespace",
+    CALL(do_patch("PROPPATCH of property with value defining namespace (RFC4918:S17)",
                   XML_DECL "<propertyupdate xmlns='DAV:'><set><prop>"
                   "<t:valnspace xmlns:t='" NS "'><foo xmlns='http://bar'/></t:valnspace>"
                   "</prop></set></propertyupdate>"));
@@ -588,7 +590,7 @@ static void pglm_results(void *userdata, const ne_uri *uri,
 
     tval = ne_rfc1123_parse(value);
     if (tval == -1) {
-        t_warning("getlastmodified value was not RFC1123-format per RFC4918:S15.7");
+        t_warning("getlastmodified value was not RFC1123-format (RFC4918:S15.7)");
     }
 
     if (ne_httpdate_parse(value) == -1) {

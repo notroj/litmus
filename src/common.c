@@ -465,9 +465,9 @@ int options(void)
 	("OPTIONS on base collection `%s': %s", i_path,
 	 ne_get_error(i_session)));
 
-    ONN("server does not claim WebDAV compliance", !i_class1);
+    ONN("server does not claim WebDAV compliance (RFC4918:S18.1)", !i_class1);
     if (!i_class2) {
-	t_warning("server does not claim Class 2 compliance");
+	t_warning("server does not claim Class 2 compliance (RFC4918:S18.2)");
     }
 
     return OK;

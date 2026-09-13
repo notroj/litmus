@@ -121,37 +121,37 @@ static int notowner_modify(void)
 
     pops[0].name = &pname;
 
-    ONN("DELETE of locked resource should fail", 
+    ONN("DELETE of locked resource should fail (RFC4918:S7.5)", 
 	ne_delete(i_session2, res) != NE_ERROR);
 
     if (STATUS2(423)) 
-	t_warning("DELETE failed with %d not 423", GETSTATUS2);
+	t_warning("DELETE failed with %d not 423 (RFC4918:S7.5)", GETSTATUS2);
 
     tmp = ne_concat(i_path, "whocares", NULL);
-    ONN("MOVE of locked resource should fail", 
+    ONN("MOVE of locked resource should fail (RFC4918:S7.5)", 
 	ne_move(i_session2, 0, res, tmp) != NE_ERROR);
     free(tmp);
     
     if (STATUS2(423))
-	t_warning("MOVE failed with %d not 423", GETSTATUS2);
+	t_warning("MOVE failed with %d not 423 (RFC4918:S9.9.4)", GETSTATUS2);
     
-    ONN("COPY onto locked resource should fail",
+    ONN("COPY onto locked resource should fail (RFC4918:S7.5)",
 	ne_copy(i_session2, 1, NE_DEPTH_ZERO, res2, res) != NE_ERROR);
 
     if (STATUS2(423))
-	t_warning("COPY failed with %d not 423", GETSTATUS2);
+	t_warning("COPY failed with %d not 423 (RFC4918:S9.8.5)", GETSTATUS2);
 
-    ONN("PROPPATCH of locked resource should fail",
+    ONN("PROPPATCH of locked resource should fail (RFC4918:S7.5)",
 	ne_proppatch(i_session2, res, pops) != NE_ERROR);
     
     if (STATUS2(423))
-	t_warning("PROPPATCH failed with %d not 423", GETSTATUS2);
+	t_warning("PROPPATCH failed with %d not 423 (RFC4918:S7.5)", GETSTATUS2);
 
-    ONN("PUT on locked resource should fail",
+    ONN("PUT on locked resource should fail (RFC4918:S7.5)",
 	dummy_put(i_session2, res) != NE_ERROR);
 
     if (STATUS2(423))
-	t_warning("PUT failed with %d not 423", GETSTATUS2);
+	t_warning("PUT failed with %d not 423 (RFC4918:S7.5)", GETSTATUS2);
 
     return OK;    
 }
@@ -167,7 +167,7 @@ static int notowner_lock(void)
     dummy.scope = ne_lockscope_exclusive;
     dummy.owner = ne_strdup("notowner lock");
 
-    ONN("UNLOCK with bogus lock token",
+    ONN("UNLOCK with bogus lock token (RFC4918:S10.5)",
 	ne_unlock(i_session2, &dummy) != NE_ERROR);
 
     /* The token is well-formed but identifies no lock, so 4918 asks
@@ -182,14 +182,14 @@ static int notowner_lock(void)
 		  "(RFC4918:S9.11.1)", GETSTATUS2,
 		  i_class3 ? "409" : "409 or 400");
 
-    ONN("LOCK on locked resource",
+    ONN("LOCK on locked resource (RFC4918:S9.10.5)",
 	ne_lock(i_session2, &dummy) != NE_ERROR);
     
     if (dummy.token)  
         ne_free(dummy.token);
 
     if (STATUS2(423))
-	t_warning("LOCK failed with %d not 423", GETSTATUS2);
+	t_warning("LOCK failed with %d not 423 (RFC4918:S9.10.5)", GETSTATUS2);
 
     return OK;
 }
@@ -265,7 +265,7 @@ static int copy(void)
 	    ne_lock_discover(i_session2, dest, count_discover, &count));
     
     ONV(count != 0,
-	("found %d locks on copied resource", count));
+	("found %d locks on copied resource (RFC4918:S7.6)", count));
 
     ONNREQ2("could not delete copy of locked resource",
 	    ne_delete(i_session2, dest));
@@ -278,8 +278,8 @@ static int copy(void)
 /* Compare locks, expected EXP, actual ACT. */
 static int compare_locks(const struct ne_lock *exp, const struct ne_lock *act)
 {
-    ONCMP(exp->token, act->token, "compare discovered lock", "token");
-    ONCMP(exp->owner, act->owner, "compare discovered lock", "owner");
+    ONCMP(exp->token, act->token, "compare discovered lock (RFC4918:S14.17)", "token");
+    ONCMP(exp->owner, act->owner, "compare discovered lock (RFC4918:S14.17)", "owner");
     return OK;
 }
 
@@ -310,7 +310,7 @@ static int discover(void)
     
     PRECOND(gotlock);
 
-    ONNREQ("lock discovery failed",
+    ONNREQ("lock discovery failed (RFC4918:S6.8)",
 	   ne_lock_discover(i_session, res, verify_discover, &ret));
 
     /* check for failure from the callback. */
@@ -324,7 +324,7 @@ static int refresh(void)
 {
     PRECOND(gotlock);
 
-    ONMREQ("LOCK refresh", gotlock->uri.path,
+    ONMREQ("LOCK refresh (RFC4918:S9.10.2)", gotlock->uri.path,
            ne_lock_refresh(i_session, gotlock));
     
     return OK;
@@ -334,7 +334,7 @@ static int unlock(void)
 {
     PRECOND(gotlock);
 
-    ONMREQ("UNLOCK", gotlock->uri.path, ne_unlock(i_session, gotlock));
+    ONMREQ("UNLOCK (RFC4918:S9.11)", gotlock->uri.path, ne_unlock(i_session, gotlock));
     /* Remove lock from session. */
     ne_lockstore_remove(store, gotlock);
     /* for safety sake. */
@@ -405,7 +405,7 @@ static int fail_cond_put(void)
     ONN("conditional PUT with invalid lock-token code got 400", code == 400);
 
     if (code != 412) 
-	t_warning("PUT failed with %d not 412", code);
+	t_warning("PUT failed with %d not 412 (RFC4918:S10.4.1)", code);
 
     return OK;
 }
@@ -424,7 +424,7 @@ static int fail_cond_put_unlocked(void)
     ONN("conditional PUT with invalid lock-token code got 400", code == 400);
 
     if (code != 412) 
-	t_warning("PUT failed with %d not 412", code);
+	t_warning("PUT failed with %d not 412 (RFC4918:S10.4.1)", code);
 
     return OK;
 }
@@ -470,7 +470,7 @@ static int cond_put_corrupt_token(void)
          ne_get_error(i_session)));
 
     if (code != 423)
-	t_warning("PUT failed with %d not 423", code);
+	t_warning("PUT failed with %d not 423 (RFC4918:S10.4.1)", code);
 
     return OK;
 }
@@ -557,7 +557,7 @@ static int indirect_refresh(void)
     indirect->uri.path = ne_strdup(res);
 
     ONV(ne_lock_refresh(i_session, indirect),
-        ("indirect refresh LOCK on %s via %s: %s",
+        ("indirect refresh LOCK on %s via %s (RFC4918:S9.10.2): %s",
          coll, res, ne_get_error(i_session)));
 
     ne_lock_destroy(indirect);

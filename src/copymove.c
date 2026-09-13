@@ -74,7 +74,7 @@ static int copy_overwrite(void)
 	ne_copy(i_session, 0, NE_DEPTH_INFINITE, src, dest) != NE_ERROR);
 
     ONNREQ("COPY-on-existing with 'Overwrite: F' MUST fail with 412 "
-           "(RFC4918:10.6)", STATUS(412));
+           "(RFC4918:S10.6)", STATUS(412));
     
     ONV(ne_copy(i_session, 1, NE_DEPTH_INFINITE, src, dest),
 	("COPY-on-existing with 'Overwrite: T' should succeed (RFC4918:S9.8.4): %s", ne_get_error(i_session)));
@@ -183,10 +183,10 @@ static int copy_coll(void)
 
     /* Now copy the collection a couple of times */
     ONV(ne_copy(i_session, 0, NE_DEPTH_INFINITE, csrc, cdest),
-	("collection COPY `%s' to `%s': %s", csrc, cdest,
+	("collection COPY `%s' to `%s' (RFC4918:S9.8.3): %s", csrc, cdest,
 	 ne_get_error(i_session)));
     ONV(ne_copy(i_session, 0, NE_DEPTH_INFINITE, csrc, cdest2),
-	("collection COPY `%s' to `%s': %s", csrc, cdest2,
+	("collection COPY `%s' to `%s' (RFC4918:S9.8.3): %s", csrc, cdest2,
 	 ne_get_error(i_session)));
 
     ONN("COPY-on-existing-coll should fail",
@@ -240,7 +240,7 @@ static int copy_shallow(void)
 
     /* Now copy with Depth 0 */
     ONV(ne_copy(i_session, 0, NE_DEPTH_ZERO, csrc, cdest),
-	("collection COPY `%s' to `%s': %s", csrc, cdest,
+	("collection COPY `%s' to `%s' (RFC4918:S9.8.3): %s", csrc, cdest,
 	 ne_get_error(i_session)));
 
     /* Remove the source, to be paranoid. */
@@ -253,7 +253,7 @@ static int copy_shallow(void)
     res = ne_concat(i_path, "ccdest/foo", NULL);
     ne_delete(i_session, res);
     ONV(STATUS(404), 
-        ("DELETE on `%s' should fail with 404: got %d", res, GETSTATUS));
+        ("DELETE on `%s' should fail with 404 (RFC4918:S9.8.3): got %d", res, GETSTATUS));
     ne_free(res);
 
     if (ne_delete(i_session, cdest)) {
@@ -282,7 +282,7 @@ static int move(void)
     ONM2REQ("MOVE", src, dest, ne_move(i_session, 0, src, dest));
 
     if (STATUS(201)) {
-	t_warning("MOVE to new resource didn't give 201");
+	t_warning("MOVE to new resource didn't give 201 (RFC4918:S9.9.4)");
     }
 
     /* Try a move with Overwrite: F to check that fails. */
@@ -290,7 +290,7 @@ static int move(void)
 	ne_move(i_session, 0, src2, dest) != NE_ERROR);
 
     ONNREQ("MOVE onto existing resource with 'Overwrite: F' MUST fail "
-           "with 412 (RFC4918:10.6)", STATUS(412));
+           "with 412 (RFC4918:S10.6)", STATUS(412));
 
     ONM2REQ("MOVE onto existing resource with Overwrite: T",
 	    src2, dest,
@@ -300,7 +300,8 @@ static int move(void)
 	    ne_move(i_session, 1, dest, coll));
     
     if (STATUS(204)) {
-	t_warning("MOVE to existing collection resource didn't give 204");
+	t_warning("MOVE to existing collection resource didn't give 204 "
+                  "(RFC4918:S9.9.4)");
     }
 		  
     if (ne_delete(i_session, ncoll)) {
@@ -346,10 +347,10 @@ static int move_coll(void)
     ONV(ne_move(i_session, 0, msrc, mdest),
 	("collection MOVE `%s' to `%s': %s", msrc, mdest, SERR));
 
-    ONN("MOVE-on-existing-coll should fail",
+    ONN("MOVE-on-existing-coll should fail (RFC4918:S9.9.3)",
 	ne_move(i_session, 0, mdest, mdest2) != NE_ERROR);
     
-    ONN("MOVE-on-existing-coll with overwrite",
+    ONN("MOVE-on-existing-coll with overwrite (RFC4918:S9.9.3)",
 	ne_move(i_session, 1, mdest2, mdest));
 
     /* Take another copy. */
