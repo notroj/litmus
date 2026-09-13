@@ -45,8 +45,9 @@
 TF(init); TF(begin); TF(direct_connect);
 TF(options); TF(finish);
 
-/* Standard initialisers for tests[] array: start everything up: */
-#define INIT_TESTS T(begin)
+/* Standard initialisers for tests[] array: start everything up, and
+ * retrieve the server's compliance classes into i_caps: */
+#define INIT_TESTS T(begin), T(options)
 
 /* And finish everything off */
 #define FINISH_TESTS T(finish), T(NULL)

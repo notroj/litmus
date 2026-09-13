@@ -379,7 +379,6 @@ ne_test tests[] = {
     INIT_TESTS,
 
     /* Basic tests. */
-    T(options),
     T(put_get),
     T(put_get_utf8_segment),
     T(put_no_parent),

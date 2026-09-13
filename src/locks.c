@@ -589,7 +589,7 @@ ne_test tests[] = {
     INIT_TESTS,
 
     /* check server is class 2. */
-    T(options), T(precond),
+    T(precond),
 
     T(init_locks),
 
