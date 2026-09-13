@@ -577,8 +577,7 @@ static int unmapped_lock(void)
     res = ne_concat(i_path, "unmapped_url", NULL);
 
     ONV(getlock(ne_lockscope_exclusive, NE_DEPTH_ZERO),
-        ("LOCK on %s via %s: %s",
-         coll, res, ne_get_error(i_session)));
+        ("LOCK on unmapped URL %s: %s", res, ne_get_error(i_session)));
 
     if (STATUS(201)) 
 	t_warning("LOCK on unmapped url returned %d not 201 (RFC4918:S7.3)", GETSTATUS);
