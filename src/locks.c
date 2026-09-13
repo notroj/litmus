@@ -170,9 +170,18 @@ static int notowner_lock(void)
     ONN("UNLOCK with bogus lock token",
 	ne_unlock(i_session2, &dummy) != NE_ERROR);
 
-    /* 2518 doesn't really say what status code that UNLOCK should
-     * fail with. mod_dav gives a 400 as the locktoken is bogus.  */
-    
+    /* The token is well-formed but identifies no lock, so 4918 asks
+     * for a 409 with the 'lock-token-matches-request-uri'
+     * precondition, which covers the case where "the token may be
+     * invalid" (RFC4918:S16).  400 is specified for a request
+     * carrying no lock token at all, but is allowed for a class 1/2
+     * server, since 2518 was not explicit on the status codes
+     * required; mod_dav gives 400 here.  */
+    if (STATUS2(409) && (i_class3 || STATUS2(400)))
+	t_warning("UNLOCK with bogus lock token gave %d, expected %s "
+		  "(RFC4918:S9.11.1)", GETSTATUS2,
+		  i_class3 ? "409" : "409 or 400");
+
     ONN("LOCK on locked resource",
 	ne_lock(i_session2, &dummy) != NE_ERROR);
     
