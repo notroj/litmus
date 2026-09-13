@@ -379,9 +379,9 @@ static int propfind_returns_wellformed(const char *msg, const char *body)
     return OK;
 }
 
-/* Run a PROPPATCH request with given body; do an XML parse on the
- * response to make sure its well-formed.  Return failure with given
- * 'msg' if the request fails. */
+/* Run a PROPPATCH request with given body.  Return failure with given
+ * 'msg' if the request fails or gives a non-2xx response; the response
+ * body is not examined. */
 static int do_patch(const char *failmsg, const char *body)
 {
     ne_request *req = ne_request_create(i_session, "PROPPATCH", prop_uri);
