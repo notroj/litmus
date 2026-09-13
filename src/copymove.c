@@ -280,9 +280,8 @@ static int move(void)
     }
 
     /* Try a move with Overwrite: F to check that fails. */
-    ONM2REQ("MOVE on existing resource with Overwrite: F succeeded",
-	    src2, dest, 
-	    ne_move(i_session, 0, src2, dest) != NE_ERROR);
+    ONN("MOVE on existing resource with Overwrite: F should fail",
+	ne_move(i_session, 0, src2, dest) != NE_ERROR);
 
     ONNREQ("MOVE onto existing resource with 'Overwrite: F' MUST fail "
            "with 412 (RFC4918:10.6)", STATUS(412));
