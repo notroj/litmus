@@ -480,7 +480,7 @@ static int propsetremove(void)
     propnames[0].name = "removeset";
     values[0] = NULL;
  
-    CALL(do_patch("PROPPATCH remove then set",
+    CALL(do_patch("PROPPATCH set then remove",
 		  XML_DECL "<propertyupdate xmlns='DAV:'>"
       "<set><prop><removeset xmlns='" NS "'>x</removeset></prop></set>"
       "<remove><prop><removeset xmlns='" NS "'/></prop></remove>"
