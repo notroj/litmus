@@ -180,7 +180,7 @@ static int copy_coll(void)
 	("collection COPY `%s' to `%s': %s", csrc, cdest,
 	 ne_get_error(i_session)));
     ONV(ne_copy(i_session, 0, NE_DEPTH_INFINITE, csrc, cdest2),
-	("collection COPY `%s' to `%s': %s", csrc, cdest,
+	("collection COPY `%s' to `%s': %s", csrc, cdest2,
 	 ne_get_error(i_session)));
 
     ONN("COPY-on-existing-coll should fail",
