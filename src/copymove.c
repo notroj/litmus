@@ -94,12 +94,18 @@ static int copy_overwrite(void)
 
 /* Rerun the standard COPY test with the RFC4918 session flag turned
    on, which uses an abspath in Destination headers rather than an
-   absoluteURI. */
+   absoluteURI.  2518 allowed only an absoluteURI, so a server which
+   does not claim class 3 compliance is entitled to reject this. */
 static int copy_abspath(void)
 {
     int ret;
 
     PRECOND(copy_ok);
+
+    if (!i_class3) {
+        t_context("server does not claim class 3 compliance");
+        return SKIP;
+    }
 
     ne_delete(i_session, dest);
 
