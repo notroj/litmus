@@ -150,10 +150,9 @@ static int do_put_get(const char *segment)
     ONV(put_buffer(i_session, uri, test_contents),
 	("PUT of `%s' failed: %s", uri, ne_get_error(i_session)));
     
-    if (STATUS(201)) {
-	t_warning("PUT of new resource gave %d, should be 201",
-		  GETSTATUS);
-    }
+    ONV(STATUS(201),
+        ("PUT to create `%s' gave %d, MUST be 201 (RFC9110:S9.3.4)",
+         uri, GETSTATUS));
 
     fd = mkstemp(tmp);
     BINARYMODE(fd);
