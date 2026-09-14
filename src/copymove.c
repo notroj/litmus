@@ -114,7 +114,7 @@ static int copy_abspath(void)
     ne_set_session_flag(i_session, NE_SESSFLAG_RFC4918, 0);
 
     ONV(ret != NE_OK,
-        ("COPY with an absolute path in the Destination header must be "
+        ("COPY with an absolute path in the Destination header MUST be "
          "supported by a class 3 server (RFC4918:S10.3): %s",
          ne_get_error(i_session)));
 

@@ -274,7 +274,7 @@ static int delete(void)
 	("HEAD on deleted resource failed: %s", ne_get_error(i_session)));
 
     ONV(STATUS(404),
-	("HEAD on deleted resource gave %d, must be 404 (RFC4918:S9.6)",
+	("HEAD on deleted resource gave %d, MUST be 404 (RFC4918:S9.6)",
 	 GETSTATUS));
 
     return OK;
@@ -357,7 +357,7 @@ static int delete_coll(void)
 	("HEAD on deleted collection failed: %s", ne_get_error(i_session)));
 
     ONV(STATUS(404),
-	("HEAD on deleted collection `%s' gave %d, must be 404 "
+	("HEAD on deleted collection `%s' gave %d, MUST be 404 "
 	 "(RFC4918:S9.6)", coll_uri, GETSTATUS));
 
     return OK;
@@ -413,7 +413,7 @@ static int mkcol_with_body(void)
 	 ne_get_error(i_session)));
 
     ONV(ne_get_status(req)->code != 415,
-        ("MKCOL with weird body must fail, got %d (RFC4918:S9.3)",
+        ("MKCOL with weird body MUST fail, got %d (RFC4918:S9.3)",
          ne_get_status(req)->code));
     
     ne_request_destroy(req);
