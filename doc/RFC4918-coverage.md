@@ -1,20 +1,22 @@
 # RFC 4918 coverage in litmus
 
 Cross-reference of the 223 server-testable requirements in
-[RFC4918.md](RFC4918.md) against the _litmus_ test suites, answering two
-questions:
+[RFC4918.md](RFC4918.md) against the _litmus_ test suites: which normative
+requirements _litmus_ does not test, and where the tests it does have are
+weaker than they look.
 
-* **(a)** which normative requirements _litmus_ does not test at all;
-* **(b)** where _litmus_ does test a requirement but the failure or warning
-  message doesn't say which requirement was violated.
+The original analysis also asked where a test checked a requirement without
+naming it in its failure message. That has been dealt with — see the citation
+figures below — so only the coverage gaps and anomalies remain here.
 
 ## Scope
 
-**This is a point-in-time analysis, run against commit `58c1c68` ("CI: Always
-use colour, noisy output.").** All five analysed source files were unmodified
-at that commit. Line numbers, message strings and counts below describe the
-tree as it stood there; they are not maintained against later changes, so
-re-run the analysis rather than patching this document.
+**Originally analysed against commit `58c1c68` ("CI: Always use colour, noisy
+output."), where all five analysed source files were unmodified.** Findings
+that have since been addressed have been removed, so what remains is the
+outstanding work; see `git log` for what was fixed. Line numbers and message
+strings still refer to the tree as it stood at `58c1c68` and have not been
+re-derived — locate a finding by its message text, not its line number.
 
 Four suites were analysed: `src/basic.c` (together with `src/common.c`, which
 holds `options()` and the shared helpers), `src/copymove.c`, `src/props.c` and
@@ -36,28 +38,28 @@ and is **not** counted as coverage.
 | | count |
 |---|---:|
 | Server-testable requirements in RFC4918.md | 223 |
-| `tested` — litmus detects a violation | 39 |
+| `tested` — litmus detects a violation | 42 |
 | `partial` — the requirement is touched but a material part is unchecked | 41 |
-| **`NOT TESTED` — no suite exercises it** | **143** |
+| **`NOT TESTED` — no suite exercises it** | **140** |
 
-Of the 143 untested requirements, **89 are MUST-level** (63 MUST, 26 MUST NOT)
-and 54 are SHOULD-level (38 SHOULD, 16 SHOULD NOT).
+Of the 140 untested requirements, **87 are MUST-level** (62 MUST, 25 MUST NOT)
+and 53 are SHOULD-level (37 SHOULD, 16 SHOULD NOT).
 
-For finding (b), the in-scope suites contain **169 message-emitting assertion
-sites**, of which **19 carry an RFC citation** — 89% uncited. A 20th reference,
-`[RFC9110:S15.3.2]` at `src/basic.c:217`, is in a comment rather than a message.
+Finding (b) has been addressed: every site it listed now names its RFC
+section, and all references use the single `(RFCnnnn:Sx.y)` form. The in-scope
+suites currently stand at **74 of 179 assertion sites cited**:
 
 | file | assertion sites | cited |
 |---|---:|---:|
-| `src/basic.c` | 27 | 8 |
-| `src/common.c` | 18 | 0 |
-| `src/copymove.c` | 47 | 9 |
-| `src/props.c` | 30 | 1 |
-| `src/locks.c` | 47 | 1 |
-| **total** | **169** | **19** |
+| `src/basic.c` | 35 | 15 |
+| `src/common.c` | 18 | 2 |
+| `src/copymove.c` | 48 | 17 |
+| `src/props.c` | 30 | 15 |
+| `src/locks.c` | 48 | 25 |
+| **total** | **179** | **74** |
 
-`src/locks.c` is the outlier: one citation across 47 sites, in the suite whose
-requirements are the most intricate in the specification.
+The remaining uncited sites are setup and scaffolding assertions with no
+normative requirement behind them.
 
 ## Three ways coverage silently disappears
 
@@ -86,7 +88,7 @@ In each case _litmus_ exits 0 and reports nothing alarming:
 
 ---
 
-# (a) Untested requirements
+# Untested requirements
 
 Grouped by the suite each would naturally belong to. Requirements marked
 **[hard]** need a server that can be made to fail on demand, a long run, or a
@@ -101,10 +103,8 @@ small addition to a test that already sets up the necessary state:
 
 | Req | Requirement | Where it belongs | Why it's cheap |
 |---|---|---|---|
-| 9.6-3 | After a successful DELETE, GET/HEAD/PROPFIND on the URL must return 404 | `basic.c` `delete`, `delete_coll` | Both tests assert only that the DELETE succeeded; nothing re-requests the URL |
-| 9.3.1-1 | Server must not auto-create missing intermediate collections | `basic.c` `mkcol_no_parent`, `put_no_parent` | Both check the 409 but never probe whether the parent was created anyway |
-| 9.8.5-1 | Same, for the COPY destination | `copymove.c` `copy_nodestcoll` | Asserts the COPY failed; never PROPFINDs `nonesuch` |
-| 9.9.4-1 | Same, for the MOVE destination | `copymove.c` | No MOVE analogue of `copy_nodestcoll` exists at all |
+| 9.8.5-1 | Server must not auto-create missing intermediate collections at the COPY destination | `copymove.c` `copy_nodestcoll` | Asserts the COPY failed; never PROPFINDs `nonesuch` |
+| 9.9.4-1 | Same, at the MOVE destination | `copymove.c` | No MOVE analogue of `copy_nodestcoll` exists at all |
 | 7.3-2 | A lock-null resource should not disappear when its lock goes away | `locks.c` | `T(unmapped_lock), T(unlock)` already builds the exact state; one HEAD after the unlock answers it |
 | 7.3-3 | MKCOL against a lock-null resource must fail | `locks.c` | `prep_collection`/`ne_mkcol` machinery is already present |
 | 7.6-2, 7.6-3 | MOVE must not carry the lock; destination lock must absorb the moved resource | `locks.c` | The exact mirror of what `copy()` already does correctly for 7.6-1 |
@@ -162,9 +162,9 @@ the pre-set `"No responses returned"` context fires.
 ## §9.3/§9.6/§9.7 MKCOL, DELETE, PUT — `basic.c`
 
 Untested: `9.3-4` (bodyless MKCOL yields no members), `9.3-6`, `9.6-1` (DELETE
-destroys locks rooted on the resource), `9.6-3`, `9.6.1-1` (`delete_coll`
-deletes an *empty* collection, so depth-infinity DELETE is never exercised),
-`9.6.1-2`, `9.6.1-3`, `9.6.1-4`, `9.6.1-5`, `9.6.1-6`, `9.3.1-1`.
+destroys locks rooted on the resource), `9.6.1-1` (`delete_coll` deletes an
+*empty* collection, so depth-infinity DELETE is never exercised), `9.6.1-2`,
+`9.6.1-3`, `9.6.1-4`, `9.6.1-5`, `9.6.1-6`.
 
 ## §9.8/§9.9 COPY and MOVE — `copymove.c`
 
@@ -209,9 +209,12 @@ language tagging), `14.17-1`, `16-1`, `16-2`, `16-5`, `17-4` (no DTD
 validation), `15.9-2`.
 
 **_litmus_ never parses a WebDAV error body.** Every 423-producing site in
-`locks.c` checks only `atoi()` of the status line, so the whole precondition /
-postcondition apparatus — `11-1`, `16-3`, `16-4`, `9.8.5-2`, `9.9.4-2`,
-`9.1.1-1`, `9.2.1-1`, `20.6-1` — is untested. `14.12-1` (`lockroot`) is one
+`locks.c` checks only the status code, so the whole precondition /
+postcondition apparatus — `11-1`, `16-3`, `9.8.5-2`, `9.9.4-2`, `9.1.1-1`,
+`9.2.1-1`, `20.6-1` — is untested. `16-4` is the sole exception and only
+half-covered: `notowner_lock` checks the status code of an UNLOCK carrying a
+token which identifies no lock, but nothing checks that the body carries the
+`lock-token-matches-request-uri` element the precondition is about. `14.12-1` (`lockroot`) is one
 `ONCMP` away: `compare_locks` (`src/locks.c:270-275`) compares only token and
 owner, skipping `lock->uri`, which is where neon stores the parsed `lockroot`.
 
@@ -246,114 +249,9 @@ session is TLS.
 
 ---
 
-# (b) Tested but uncited
-
-150 of the 169 assertion sites carry no RFC reference. Listed below are the
-sites where a citation would carry real information — a reader hitting the
-failure needs the spec text. Suggested citations use litmus's existing in-code
-convention, `(RFC4918:Sx.y)`, which is the majority form in the tree.
-
-## `src/common.c` — 0 of 18 cited
-
-| line | current message | suggested |
-|---|---|---|
-| 439 | `"server does not claim WebDAV compliance"` | `(RFC4918:S18.1)` — 10.1-1/18.1-1 |
-| 441 | `"server does not claim Class 2 compliance"` | `(RFC4918:S18.2)` — 18.2-3 |
-
-The second is load-bearing well beyond its own message: it is the only visible
-consequence of the Class 2 gate that disables the entire locks suite.
-
-## `src/locks.c` — 1 of 47 cited
-
-Nine of the ten `t_warning`s are uncited, and every one is §6/§7/§10.4
-material:
-
-| line | current message | suggested |
-|---|---|---|
-| 128 | `"DELETE failed with %d not 423"` | `(RFC4918:S7.5)` |
-| 136 | `"MOVE failed with %d not 423"` | `(RFC4918:S9.9.4)` |
-| 142 | `"COPY failed with %d not 423"` | `(RFC4918:S9.8.5)` |
-| 148 | `"PROPPATCH failed with %d not 423"` | `(RFC4918:S7.5)` |
-| 154 | `"PUT failed with %d not 423"` | `(RFC4918:S7.5)` |
-| 183 | `"LOCK failed with %d not 423"` | `(RFC4918:S9.10.5)` |
-| 399 | `"PUT failed with %d not 412"` | `(RFC4918:S10.4.1)` |
-| 418 | `"PUT failed with %d not 412"` | `(RFC4918:S10.4.1)` |
-| 464 | `"PUT failed with %d not 423"` | `(RFC4918:S10.4.1)` — but see the level mismatch below |
-
-The FAIL-level sites are equally bare. Highest value, by how often a reader must
-go to the RFC to interpret the failure:
-
-| line | current message | suggested |
-|---|---|---|
-| 124 | `"DELETE of locked resource should fail"` | `(RFC4918:S7.5)` — 7.5-1 |
-| 131 | `"MOVE of locked resource should fail"` | `(RFC4918:S7.5)` — 7.5-1 |
-| 138 | `"COPY onto locked resource should fail"` | `(RFC4918:S7.5)` — 7.5-1 |
-| 144 | `"PROPPATCH of locked resource should fail"` | `(RFC4918:S7.5)` — 7.5-1 |
-| 150 | `"PUT on locked resource should fail"` | `(RFC4918:S7.5)` — 7.5-1 |
-| 170 | `"UNLOCK with bogus lock token"` | `(RFC4918:S10.5)` — 10.5-1 |
-| 176 | `"LOCK on locked resource"` | `(RFC4918:S9.10.5)` — 9.10.5-1 |
-| 258 | `"found %d locks on copied resource"` | `(RFC4918:S7.6)` — 7.6-1 |
-| 304 | `"lock discovery failed"` | `(RFC4918:S6.8)` — 6.8-1 |
-| 318, 550 | `"LOCK refresh"`, `"indirect refresh LOCK on %s via %s: %s"` | `(RFC4918:S9.10.2)` — 9.10.2-1/9.10.2-3 |
-| 328 | `"UNLOCK"` | `(RFC4918:S9.11)` — 9.11-2/9.11-4 |
-| 272, 273 | `ONCMP(exp->token, act->token, "compare discovered lock", "token")` and the `"owner"` variant | `(RFC4918:S14.17)` — 14.17-2 |
-
-## `src/props.c` — 1 of 30 cited
-
-| line | current message | suggested |
-|---|---|---|
-| 146 | `"PROPFIND with %s got %d response not 400"` | `(RFC4918:S8.2)` — 8.2-4 |
-| 366 | `"PROPFIND response %s was not well-formed: %s"` | `(RFC4918:S8.2)` — 8.2-3 |
-| 369, 374 | `"no Content-Type in PROPFIND response"`, `"unexpected content-type '%s/%s'"` | `(RFC4918:S9.1)` — 9.1-6 |
-| 77 | `"Base collection did not define {DAV:}collection property"` | `(RFC4918:S15.9)` — 14.3-1/15.9-1 |
-| 248, 251, 255 | `"Property %d omitted from results with no status"` etc. | `(RFC4918:S9.1)` — 9.1-7/9.1-8 |
-| 306 | `ONM2REQ("MOVE", ...)` in `propmove` | `(RFC4918:S9.9.1)` — 9.9.1-3, the one place litmus tests "dead properties MUST be moved" |
-| 461, 483 | `"PROPPATCH remove then set"` | `(RFC4918:S9.2)` — 9.2-4, document-order processing |
-| 416, 441, 508 | `"PROPPATCH of property with null namespace"` etc. | `(RFC4918:S17)` — 17-2, "the server MUST record all XML elements" |
-
-## `src/copymove.c` — 9 of 47 cited
-
-The cited assertions are all in `copy_simple`, `copy_overwrite`, `copy_abspath`
-and `copy_nodestcoll`. Everything in `copy_coll`, `copy_shallow`, `move` and
-`move_coll` is bare. The most conspicuous omissions are the MOVE status
-warnings, which are the exact analogues of cited COPY warnings:
-
-| line | current message | suggested |
-|---|---|---|
-| 279 | `"MOVE to new resource didn't give 201"` | `(RFC4918:S9.9.4)` — analogue of the cited `:62` |
-| 298 | `"MOVE to existing collection resource didn't give 204"` | `(RFC4918:S9.9.4)` — analogue of the cited `:88` |
-| 344, 347 | `"MOVE-on-existing-coll should fail"`, `"MOVE-on-existing-coll with overwrite"` | `(RFC4918:S9.9.3)` — analogue of the cited `:186`/`:189` |
-| 249 | `"DELETE on \`%s' should fail with 404: got %d"` | `(RFC4918:S9.8.3)` — 9.8.3-2, the Depth-0 requirement under test |
-| 179, 236 | `"collection COPY \`%s' to \`%s': %s"` | `(RFC4918:S9.8.3)` — 9.8.3-2 |
-
-## `src/basic.c` — 8 of 27 cited
-
-| line | current message | suggested |
-|---|---|---|
-| 242 | `"MKCOL on plain resource \`%s' succeeded!"` | `(RFC4918:S9.3)` — 9.3-1; the sibling check at `:310` is cited (wrongly), this one not at all |
-| 251, 325 | `"DELETE on normal resource failed: %s"`, `"DELETE on collection \`%s': %s"` | `(RFC4918:S9.6)` — 9.6-2 |
-
 ---
 
 # Anomalies
-
-## Wrong, stale or malformed citations
-
-All confirmed by reading the cited RFC sections:
-
-| site | citation | problem |
-|---|---|---|
-| `basic.c:310` | `(RFC4918:S9.1)` | **§9.1 is PROPFIND.** The requirement — MKCOL on an existing collection must fail — is §9.3 (9.3-1). The most misleading citation in the tree: plausible-looking and pointing at an unrelated method. |
-| `basic.c:315` | `(RFC4918:S9.3.2)` | §9.3.2 is "Example - MKCOL". MKCOL status codes are §9.3.1. |
-| `basic.c:266` | `(RFC2518:S3)` | Obsolete RFC, *and* §3 of RFC 2518 is "Terminology". RFC 4918 §9.6 does not state the 404 either — this test has no RFC 4918 requirement behind it; the authority is RFC 9110 §15.5.5. |
-| `basic.c:370` | `[RFC4918:S9.3)` | Mismatched bracket/paren. |
-| `basic.c:338` | `(RFC4918:9.3)` | Missing the `S`, three lines above `[RFC4918:S9.3]` at `:343` — two spellings and two delimiters inside one 12-line function. |
-| `copymove.c:77`, `:288` | `(RFC4918:10.6)` | Missing the `S`. **The section is correct**: §10.6 carries the only RFC 2119 statement of the 412 ("the method MUST fail with a 412", = 10.6-2), whereas §9.8.5's 412 entry is a descriptive status-code list item with no normative keyword. Fix the spelling, not the section. |
-| `props.c:588` | `RFC4918:S15.7` | Bare — no parens or brackets, unlike every other citation in the tree. |
-
-Five delimiter shapes are in use across the tree: `(RFC4918:Sx.y)` ×9,
-`[RFC4918:Sx.y]` ×3, `(RFC4918:x.y)` ×3, bare ×1, mismatched ×1. The majority
-form is `(RFC4918:Sx.y)`.
 
 ## Level mismatches
 
@@ -435,31 +333,3 @@ levels, one file. A deliberate decision either way would be an improvement.
   while being perfectly compliant on the 9.8.3-2 Depth behaviour under test. Per
   the file's own idiom this should FAIL on "the child exists" and warn on the
   code.
-
-## Stale comments and message bugs
-
-Not RFC coverage issues, but found while reading and worth fixing alongside:
-
-- `locks.c:173-174` — *"2518 doesn't really say what status code that UNLOCK
-  should fail with"*. RFC 4918 §9.11.1 does enumerate UNLOCK status codes, and
-  §16 defines `lock-token-matches-request-uri` for a Request-URI outside the
-  lock's scope. The comment still holds for the *specific* case tested (a
-  well-formed token identifying no lock, which remains unspecified), but the
-  citation and the general claim are stale.
-- `props.c:382-384` — comments that `do_patch` will *"do an XML parse on the
-  response to make sure its well-formed"*. It does not: `do_patch`
-  (`:385-397`) attaches no parser and discards the body. PROPPATCH response
-  well-formedness is unchecked throughout the suite.
-- `copymove.c:182-184` — the second `ne_copy` targets `cdest2` but the failure
-  message formats `cdest`, so a failure misreports the destination.
-- `copymove.c:283` — a sentence is passed as `ONM2REQ`'s *method* argument,
-  rendering as `MOVE on existing resource with Overwrite: F succeeded `src2' to
-  `dest': <err>`.
-- `props.c:483` — `propsetremove` passes `"PROPPATCH remove then set"`, which is
-  `propremoveset`'s string and the reverse of what this test does; a failure in
-  either test reports identically.
-- `locks.c:570-572` — reports `("LOCK on %s via %s: %s", coll, res, ...)`, where
-  `coll` is a collection from the previous test group, unrelated to the unmapped
-  URL being locked.
-- `props.c:134-154` — `do_invalid_pfind` returns before `ne_request_destroy` on
-  both failure paths, leaking `req` in tests that carry `T_CHECK_LEAKS`.
