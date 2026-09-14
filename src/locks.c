@@ -579,8 +579,16 @@ static int unmapped_lock(void)
     ONV(getlock(ne_lockscope_exclusive, NE_DEPTH_ZERO),
         ("LOCK on unmapped URL %s: %s", res, ne_get_error(i_session)));
 
-    if (STATUS(201)) 
-	t_warning("LOCK on unmapped url returned %d not 201 (RFC4918:S7.3)", GETSTATUS);
+    /* 2518 gave 200 as the only success code for LOCK, and had the
+     * lock-null resource return to the null state at UNLOCK.  The 201
+     * and the locked empty resource which replaced it are 4918
+     * revisions, and a server may still implement lock-null resources,
+     * so only a class 3 server is held to the 201. */
+    if (i_class3) {
+        ONV(STATUS(201),
+            ("LOCK on unmapped URL gave %d, MUST be 201 (RFC4918:S7.3)",
+             GETSTATUS));
+    }
 
     return OK;
 }

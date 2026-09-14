@@ -253,13 +253,11 @@ code** — is followed almost everywhere and is correct: RFC 4918 rarely mandate
 a specific code (7.5-1's MUST is that the method *fail*, not that it return
 423). The genuine mismatches are these:
 
-**1. `locks.c:575` — a MUST checked only by a warning, with no behaviour check
-underneath it.** 7.3-5 is unambiguous: a LOCK creating a resource "MUST
-indicate that a resource was created, by use of the 201 Created response code".
-The only assertion is `t_warning("LOCK on unmapped url returned %d not 201
-(RFC4918:S7.3)")`. Unlike the 423/412 cases there is no underlying behaviour
-check — nothing GETs, PROPFINDs or HEADs the URL — so **a server that returns
-200 having created nothing produces a passing run with one warning.**
+**1. `unmapped_lock` checks the status code but not the behaviour.** The 201 of
+7.3-5 is now asserted for a class 3 server, but nothing GETs, PROPFINDs or HEADs
+the URL afterwards, so **a server which returns the right code having created
+nothing still passes.** 7.3-1 (the resource must exist, and be empty and
+non-collection), 9.10.4-2 and 9.10.4-3 are all unchecked for the same reason.
 
 **3. `locks.c` levels the same requirement three ways.** 10.4.1-1 is warned as
 "not 412" at `:399` and `:418`, warned as **"not 423"** at `:464`, and hard-failed
