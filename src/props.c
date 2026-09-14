@@ -595,7 +595,17 @@ static void pglm_results(void *userdata, const ne_uri *uri,
 
     tval = ne_rfc1123_parse(value);
     if (tval == -1) {
-        t_warning("getlastmodified value was not RFC1123-format (RFC4918:S15.7)");
+        /* 2518 was not explicit about the format, so hold only a class
+         * 3 server to the rfc1123-date given for the property. */
+        if (i_class3) {
+            t_context("getlastmodified value `%s' is not RFC1123-format, "
+                      "which it MUST be (RFC4918:S15.7)", value);
+            r->result = FAIL;
+        }
+        else {
+            t_warning("getlastmodified value was not RFC1123-format "
+                      "(RFC4918:S15.7)");
+        }
     }
 
     if (ne_httpdate_parse(value) == -1) {
