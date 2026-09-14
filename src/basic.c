@@ -182,6 +182,11 @@ static int put_get_utf8_segment(void)
     return do_put_get("res-%e2%82%ac");
 }
 
+static int put_get_normal(void)
+{
+    return do_put_get("resource.txt");
+}
+
 static int put_no_parent(void)
 {
     char *uri = ne_concat(i_path, "409me/noparent.txt", NULL);
@@ -250,6 +255,14 @@ static int delete(void)
 
     ONV(ne_delete(i_session, pg_uri),
 	("DELETE on normal resource failed (RFC4918:S9.6): %s", ne_get_error(i_session)));
+
+    /* The mapping must be gone once the DELETE has succeeded. */
+    ONV(do_head(i_session, pg_uri),
+	("HEAD on deleted resource failed: %s", ne_get_error(i_session)));
+
+    ONV(STATUS(404),
+	("HEAD on deleted resource gave %d, must be 404 (RFC4918:S9.6)",
+	 GETSTATUS));
 
     return OK;
 }
@@ -323,8 +336,16 @@ static int delete_coll(void)
     PRECOND(coll_uri);
     
     ONV(ne_delete(i_session, coll_uri),
-	("DELETE on collection `%s' (RFC4918:S9.6): %s", coll_uri, 
+	("DELETE on collection `%s' (RFC4918:S9.6): %s", coll_uri,
 	 ne_get_error(i_session)));
+
+    /* The mapping must be gone once the DELETE has succeeded. */
+    ONV(do_head(i_session, coll_uri),
+	("HEAD on deleted collection failed: %s", ne_get_error(i_session)));
+
+    ONV(STATUS(404),
+	("HEAD on deleted collection `%s' gave %d, must be 404 "
+	 "(RFC4918:S9.6)", coll_uri, GETSTATUS));
 
     return OK;
 }
@@ -381,6 +402,7 @@ ne_test tests[] = {
     /* Basic tests. */
     T(put_get),
     T(put_get_utf8_segment),
+    T(put_get_normal),
     T(put_no_parent),
     T(put_location),
     T(mkcol_over_plain),

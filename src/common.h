@@ -81,6 +81,11 @@ int upload_foo(const char *path);
 /* Returns etag of resource at path within i_session */
 char *get_etag(const char *path);
 
+/* HEAD request on 'path'.  Returns the neon result code; the response
+ * status-code is left in i_status_code (i_status_code2 for
+ * i_session2), so a non-2xx response is not itself an error here. */
+int do_head(ne_session *sess, const char *path);
+
 /* PUT request with body of "zero" to path. Returns NE_ERROR for
  * non-2xx responses. */
 int dummy_put(ne_session *sess, const char *path);

@@ -473,6 +473,16 @@ int options(void)
     return OK;
 }
 
+int do_head(ne_session *sess, const char *path)
+{
+    ne_request *req = ne_request_create(sess, "HEAD", path);
+    int ret = ne_request_dispatch(req);
+
+    ne_request_destroy(req);
+
+    return ret;
+}
+
 char *get_etag(const char *path)
 {
     ne_request *req = ne_request_create(i_session, "HEAD", path);
