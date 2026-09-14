@@ -44,7 +44,11 @@
 
 #include "common.h"
 
-int i_class2 = 0;
+unsigned int i_caps = 0;
+unsigned int i_level = NE_CAP_DAV_CLASS1 | NE_CAP_DAV_CLASS2;
+static int level_auto;
+
+int i_status_code, i_status_code2;
 
 ne_session *i_session, *i_session2;
 
@@ -72,6 +76,7 @@ static const struct option longopts[] = {
     { "client-cert",  required_argument, NULL, 'c' },
     { "client-cert-uri",  required_argument, NULL, 'u' },
     { "insecure", no_argument, NULL, 'i' },
+    { "level", required_argument, NULL, 'l' },
     { NULL }
 };
 
@@ -81,6 +86,9 @@ static const struct option longopts[] = {
 " -c, --client-cert=CERT     use given PKCS#12 client cert\n"           \
 " -u, --client-cert-uri=URI  use given client cert URI\n"               \
 " -i, --insecure             ignore TLS certificate verification failures\n" \
+" -l, --level=LIST           test the given compliance classes:\n"         \
+"                            1, 2, 3, a comma-separated list of those,\n"  \
+"                            or 'auto' to follow the DAV header\n"         \
 " -q, --quiet                use abbreviated output\n"                  \
 " -n, --no-colour            disable colour in output\n"                 \
 " -o, --colour               enable colour in output\n"
@@ -140,6 +148,31 @@ int direct_connect(void)
     return test_connect();
 }
 
+/* Parse the --level argument into i_level; class 1 is implied since
+ * every valid combination includes it (RFC4918:S18.2, S18.3).  Returns
+ * non-zero if the list is malformed. */
+static int parse_level(const char *arg)
+{
+    if (strcmp(arg, "auto") == 0) {
+        level_auto = 1;
+        return 0;
+    }
+
+    i_level = NE_CAP_DAV_CLASS1;
+
+    for (;;) {
+        switch (*arg++) {
+        case '1': break;
+        case '2': i_level |= NE_CAP_DAV_CLASS2; break;
+        case '3': i_level |= NE_CAP_DAV_CLASS3; break;
+        default: return -1;
+        }
+
+        if (*arg == '\0') return 0;
+        if (*arg++ != ',') return -1;
+    }
+}
+
 int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
 {
     ne_uri proxy = {0}, *server = &i_origin;
@@ -147,13 +180,21 @@ int litmus_init(int argc, const char *const *argv, int *use_colour, int *quiet)
     char *proxy_url = NULL;
 
     while ((optc = getopt_long(argc, test_argv,
-			       "c:d:hinop:qsu:", longopts, NULL)) != -1) {
+			       "c:d:hil:nop:qsu:", longopts, NULL)) != -1) {
 	switch (optc) {
         case 'c':
             clicert_fn = optarg;
             break;
         case 'u':
             clicert_uri = optarg;
+            break;
+        case 'l':
+            if (parse_level(optarg)) {
+                fprintf(stderr, "%s: invalid --level `%s': must be `auto', or "
+                        "a comma-separated list of 1, 2 and 3.\n",
+                        test_argv[0], optarg);
+                exit(1);
+            }
             break;
 	case 'd':
             t_warning("the 'htdocs' argument is now ignored");
@@ -274,6 +315,28 @@ static void i_pre_send(ne_request *req, void *userdata, ne_buffer *hdr)
                        name, test_suite, test_num, tests[test_num].name);
 }
 
+/* Clear the recorded status-code so that a request which fails before
+ * a response is read cannot leave the previous request's code behind;
+ * called exactly once per request. */
+static void i_create_request(ne_request *req, void *userdata,
+                             const char *method, const char *target)
+{
+    int *code = userdata;
+
+    *code = 0;
+}
+
+/* Record the response status-code for the session. */
+static int i_post_send(ne_request *req, void *userdata,
+                       const ne_status *status)
+{
+    int *code = userdata;
+
+    *code = status->code;
+
+    return NE_OK;
+}
+
 /* Allow all certificates. */
 static int ignore_verify(void *ud, int fs, const ne_ssl_certificate *cert)
 {
@@ -373,7 +436,14 @@ int begin(void)
      * test number and session. */
     ne_hook_pre_send(i_session, i_pre_send, "X-Litmus");
     ne_hook_pre_send(i_session2, i_pre_send, "X-Litmus-Second");
-    
+
+    /* Record the response status-code for each session, so tests can
+     * check it without reparsing the session error string. */
+    ne_hook_create_request(i_session, i_create_request, &i_status_code);
+    ne_hook_create_request(i_session2, i_create_request, &i_status_code2);
+    ne_hook_post_send(i_session, i_post_send, &i_status_code);
+    ne_hook_post_send(i_session2, i_post_send, &i_status_code2);
+
     CALL(make_space());
     
     return OK;
@@ -430,19 +500,38 @@ int upload_foo(const char *path)
 
 int options(void)
 {
-    ne_server_capabilities caps = {0};
-    
-    ONV(ne_options(i_session, i_path, &caps),
-	("OPTIONS on base collection `%s': %s", i_path, 
+    ONV(ne_options2(i_session, i_path, &i_caps),
+	("OPTIONS on base collection `%s': %s", i_path,
 	 ne_get_error(i_session)));
 
-    ONN("server does not claim WebDAV compliance", caps.dav_class1 == 0);
-    if (caps.dav_class2 == 0) {
-	t_warning("server does not claim Class 2 compliance");
-    }
-    i_class2 = caps.dav_class2;
+    /* Note that i_class1 etc. describe the classes under test, so the
+     * advertised capabilities must be tested through i_caps here. */
+    if (level_auto)
+        i_level = i_caps & (NE_CAP_DAV_CLASS1|NE_CAP_DAV_CLASS2
+                            |NE_CAP_DAV_CLASS3);
+
+    ONN("server does not claim WebDAV compliance (RFC4918:S18.1)",
+        (i_caps & NE_CAP_DAV_CLASS1) == 0);
+
+    ONN("server does not claim Class 2 compliance (RFC4918:S18.2), "
+        "use --level to change the classes tested",
+        i_class2 && (i_caps & NE_CAP_DAV_CLASS2) == 0);
+
+    ONN("server does not claim Class 3 compliance (RFC4918:S18.3), "
+        "use --level to change the classes tested",
+        i_class3 && (i_caps & NE_CAP_DAV_CLASS3) == 0);
 
     return OK;
+}
+
+int do_head(ne_session *sess, const char *path)
+{
+    ne_request *req = ne_request_create(sess, "HEAD", path);
+    int ret = ne_request_dispatch(req);
+
+    ne_request_destroy(req);
+
+    return ret;
 }
 
 char *get_etag(const char *path)

@@ -39,14 +39,15 @@
  * init: parses and verifies cmd-line args (URL, username/password)
  * direct_connect: tests direct connection (optional, not recommended)
  * begin: opens session 'i_session' to server.
- * options: does an OPTIONS request on i_path, sets i_class2.
+ * options: does an OPTIONS request on i_path, sets i_caps.
  * finish: closes i_session. */
 
 TF(init); TF(begin); TF(direct_connect);
 TF(options); TF(finish);
 
-/* Standard initialisers for tests[] array: start everything up: */
-#define INIT_TESTS T(begin)
+/* Standard initialisers for tests[] array: start everything up, and
+ * retrieve the server's compliance classes into i_caps: */
+#define INIT_TESTS T(begin), T(options)
 
 /* And finish everything off */
 #define FINISH_TESTS T(finish), T(NULL)
@@ -63,13 +64,33 @@ extern ne_uri i_origin;
 /* If test_direct_connect() is invoked, this will be non-NULL. */
 extern ne_sock_addr *i_address;
 
-extern int i_class2; /* true if server is a class 2 DAV server. */
+/* Bit-mask of NE_CAP_* capabilities advertised by the server, as
+ * retrieved by the options() test; zero until that test has run.  Only
+ * options() should use this: everything else wants the classes under
+ * test, not the classes claimed. */
+extern unsigned int i_caps;
+
+/* Bit-mask of the compliance classes under test, from the --level
+ * argument; options() fails if the server does not claim them all. */
+extern unsigned int i_level;
+
+/* Compliance classes under test.  Class 3 means the server implements
+ * the RFC 4918 revisions; a server which is only class 1 or 2 is
+ * answering to RFC 2518. */
+#define i_class1 (i_level & NE_CAP_DAV_CLASS1)
+#define i_class2 (i_level & NE_CAP_DAV_CLASS2)
+#define i_class3 (i_level & NE_CAP_DAV_CLASS3)
 
 /* Upload htdocs/foo to i_path + path */
 int upload_foo(const char *path);
 
 /* Returns etag of resource at path within i_session */
 char *get_etag(const char *path);
+
+/* HEAD request on 'path'.  Returns the neon result code; the response
+ * status-code is left in i_status_code (i_status_code2 for
+ * i_session2), so a non-2xx response is not itself an error here. */
+int do_head(ne_session *sess, const char *path);
 
 /* PUT request with body of "zero" to path. Returns NE_ERROR for
  * non-2xx responses. */
@@ -92,12 +113,17 @@ int put_buffer(ne_session *sess, const char *path, const char *content);
 /* similarly for second session. */
 #define ONNREQ2(msg, x) do { int _ret = (x); if (_ret) { t_context("%s:\n%s", msg, ne_get_error(i_session2)); return FAIL; } } while (0)
 
-#define GETSTATUS (atoi(ne_get_error(i_session)))
+/* Status-code of the most recent response on i_session and i_session2
+ * respectively, recorded by a post_send hook; zero if the request
+ * failed before a response was read. */
+extern int i_status_code, i_status_code2;
+
+#define GETSTATUS (i_status_code)
 
 /* STATUS(404) returns non-zero if status code is not 404 */
 #define STATUS(code) (GETSTATUS != (code))
 
-#define GETSTATUS2 (atoi(ne_get_error((i_session2))))
+#define GETSTATUS2 (i_status_code2)
 #define STATUS2(code) (GETSTATUS2 != (code))
 
 #endif /* INTEROP_H */
