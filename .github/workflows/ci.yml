@@ -11,6 +11,14 @@ jobs:
         os: [ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm]
         install: [true, false]
         neon: [--with-neon, --with-included-neon, --with-included-neon --with-ssl=openssl]
+        # Cover the default (no --level given), --level=auto and an
+        # explicit class list; mod_dav advertises "DAV: 1,2" so all
+        # three pass.  A build with no level here uses the default.
+        include:
+          - neon: --with-included-neon
+            level: auto
+          - neon: --with-included-neon --with-ssl=openssl
+            level: "1,2"
     steps:
     - uses: actions/checkout@v2
       with:
@@ -24,7 +32,7 @@ jobs:
       if: matrix.install == true
     - run: ./litmus --version
     - run: ./litmus --help
-    - run: make test-httpd TEST_QUIET=0 TEST_COLOUR=1
+    - run: make test-httpd ${{ matrix.level && format('OPTS=--level={0}', matrix.level) || '' }} TEST_QUIET=0 TEST_COLOUR=1
       if: matrix.install == false
-    - run: make test-httpd TESTS=protected TEST_QUIET=0 TEST_COLOUR=1
+    - run: make test-httpd TESTS=protected ${{ matrix.level && format('OPTS=--level={0}', matrix.level) || '' }} TEST_QUIET=0 TEST_COLOUR=1
       if: matrix.install == false
