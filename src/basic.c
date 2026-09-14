@@ -190,6 +190,8 @@ static int put_get_normal(void)
 static int put_no_parent(void)
 {
     char *uri = ne_concat(i_path, "409me/noparent.txt", NULL);
+    char *parent;
+
     ONN("PUT with missing intermediate succeeds",
 	dummy_put(i_session, uri) != NE_ERROR);
 
@@ -197,6 +199,18 @@ static int put_no_parent(void)
         ("PUT with missing intermediate collection gave %d, "
          "MUST be 409 (RFC4918:S9.7.1)", GETSTATUS));
 
+    /* The intermediate collection must not have been created. */
+    parent = ne_concat(i_path, "409me/", NULL);
+
+    ONV(do_head(i_session, parent),
+	("HEAD on `%s' failed: %s", parent, ne_get_error(i_session)));
+
+    ONV(STATUS(404),
+        ("PUT created the missing intermediate collection `%s' "
+         "(HEAD gave %d), but the PUT MUST fail (RFC4918:S9.7.1)",
+         parent, GETSTATUS));
+
+    ne_free(parent);
     ne_free(uri);
 
     return OK;
@@ -352,7 +366,7 @@ static int delete_coll(void)
 
 static int mkcol_no_parent(void)
 {
-    char *uri;
+    char *uri, *parent;
 
     uri = ne_concat(i_path, "409me/noparent/", NULL);
 
@@ -363,6 +377,18 @@ static int mkcol_no_parent(void)
         ("MKCOL with missing intermediate collection gave %d, "
          "MUST be 409 (RFC4918:S9.3)", GETSTATUS));
 
+    /* The intermediate collection must not have been created. */
+    parent = ne_concat(i_path, "409me/", NULL);
+
+    ONV(do_head(i_session, parent),
+	("HEAD on `%s' failed: %s", parent, ne_get_error(i_session)));
+
+    ONV(STATUS(404),
+        ("MKCOL created the missing intermediate collection `%s' "
+         "(HEAD gave %d), which MUST NOT happen (RFC4918:S9.3.1)",
+         parent, GETSTATUS));
+
+    ne_free(parent);
     ne_free(uri);
 
     return OK;
