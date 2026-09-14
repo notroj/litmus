@@ -1,3 +1,8 @@
+Changes in version 0.19:
+* New --level option to select which compliance classes are tested;
+  classes 1 and 2 are tested by default, --level=auto follows the
+  DAV header as previous releases did.
+
 Changes in version 0.18:
 * New optional test suites:
  - lockbomb, lockbomb-single: stress tests for locking

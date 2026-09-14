@@ -61,18 +61,11 @@ suites currently stand at **74 of 179 assertion sites cited**:
 The remaining uncited sites are setup and scaffolding assertions with no
 normative requirement behind them.
 
-## Three ways coverage silently disappears
+## Ways coverage silently disappears
 
-Before the gap list, three mechanisms that make the numbers above optimistic.
+Before the gap list, mechanisms that make the numbers above optimistic.
 In each case _litmus_ exits 0 and reports nothing alarming:
 
-1. **The Class 2 gate.** `src/locks.c:38-47` — `precond()` returns `SKIPREST`
-   when `!i_class2`, so **all 40 subsequent entries in the locks table vanish**
-   against a server that does not advertise `2` in its `DAV` header. `i_class2`
-   is set from the OPTIONS response in `src/common.c:443`, so the gate keys on
-   the *advertisement*, not on observed LOCK support: a server whose only lock
-   defect is a missing `2` in the header is never tested for any other lock
-   defect. The sole artefact is a `t_warning` at `src/common.c:441`.
 2. **Missing ETag disables four conditional-PUT tests.** `get_etag()`
    (`src/common.c:448-460`) returns NULL when the HEAD is not 200 or the header
    is absent. `PRECOND(etag && gotlock)` at `src/locks.c:366`, `:386` and
@@ -268,28 +261,6 @@ The only assertion is `t_warning("LOCK on unmapped url returned %d not 201
 check — nothing GETs, PROPFINDs or HEADs the URL — so **a server that returns
 200 having created nothing produces a passing run with one warning.**
 
-**2. `props.c:585-594` — the RFC 4918 requirement is warned, the weaker HTTP
-requirement is enforced.** The block reads:
-
-```c
-    tval = ne_rfc1123_parse(value);
-    if (tval == -1) {
-        t_warning("getlastmodified value was not RFC1123-format per RFC4918:S15.7");
-    }
-
-    if (ne_httpdate_parse(value) == -1) {
-        t_context("could not parse getlastmodified value as HTTP-date");
-        r->result = FAIL;
-    }
-```
-
-§15.7 specifies `Value: rfc1123-date`, and §4.1 makes live-property value
-syntax normative (15.7-2 with 4.1-1). But `ne_httpdate_parse`
-(`neon/src/ne_dates.c:263`) falls back through RFC 1036 and asctime forms. So a
-server returning `Sunday, 06-Nov-94 08:49:37 GMT` violates RFC 4918 and earns
-only a warning, while the hard FAIL tests the strictly weaker RFC 9110
-`HTTP-date`. The levels are inverted relative to the specifications.
-
 **3. `locks.c` levels the same requirement three ways.** 10.4.1-1 is warned as
 "not 412" at `:399` and `:418`, warned as **"not 423"** at `:464`, and hard-failed
 at `:510`. `fail_cond_put` and `cond_put_corrupt_token` issue structurally
@@ -303,15 +274,10 @@ is a 9.1-7/9.1-8 *behaviour* failure (the RFC requires a `response` carrying
 property was not 404" — is the genuine status-code nit and correctly warns. The
 two arms are mis-graded relative to each other.
 
-**5. `basic.c` disagrees with itself on the PUT-create status.** `:154` warns
-`"PUT of new resource gave %d, should be 201"`; `:213-215` hard-fails on the
-same condition with `"MUST return 201"`. Same requirement (RFC 9110 §9.3.4), two
-levels, one file. A deliberate decision either way would be an improvement.
-
 ## Vacuous or misdirecting tests
 
 - **`copymove.c` 9.8.4-2 is effectively vacuous.** `copy_coll` copies `ccsrc` to
-  both `ccdest` and `ccdest2`, then COPYs `ccdest2` over `ccdest` — two
+  both `ccdest` and `ccdest2`, then copies `ccdest2` over `ccdest` — two
   collections with *identical* membership, so "merging the membership of source
   and destination is not compliant" cannot fail. A real test needs the
   destination to hold a member the source does not. The same hole applies to
@@ -325,9 +291,6 @@ levels, one file. A deliberate decision either way would be an improvement.
   LOCK-response owner against the PROPFIND-lockdiscovery owner — a
   server-internal consistency check. A server that uniformly rewrote the owner
   would pass.
-- **`props.c` `propfind_returns_wellformed` never checks the response status.**
-  A 4xx leaves `ne_xml_failed(p)` at 0 because the reader never ran, so the test
-  fails only incidentally via the Content-Type assertion.
 - **`copymove.c:249` infers non-existence from a DELETE returning 404.** A
   server answering 403 or 405 for a DELETE of an unmapped URL fails this test
   while being perfectly compliant on the 9.8.3-2 Depth behaviour under test. Per

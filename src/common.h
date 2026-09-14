@@ -65,15 +65,21 @@ extern ne_uri i_origin;
 extern ne_sock_addr *i_address;
 
 /* Bit-mask of NE_CAP_* capabilities advertised by the server, as
- * retrieved by the options() test; zero until that test has run. */
+ * retrieved by the options() test; zero until that test has run.  Only
+ * options() should use this: everything else wants the classes under
+ * test, not the classes claimed. */
 extern unsigned int i_caps;
 
-/* Compliance classes claimed in the DAV header.  Class 3 means the
- * server implements the RFC 4918 revisions; a server claiming only
- * class 1 or 2 is answering to RFC 2518. */
-#define i_class1 (i_caps & NE_CAP_DAV_CLASS1)
-#define i_class2 (i_caps & NE_CAP_DAV_CLASS2)
-#define i_class3 (i_caps & NE_CAP_DAV_CLASS3)
+/* Bit-mask of the compliance classes under test, from the --level
+ * argument; options() fails if the server does not claim them all. */
+extern unsigned int i_level;
+
+/* Compliance classes under test.  Class 3 means the server implements
+ * the RFC 4918 revisions; a server which is only class 1 or 2 is
+ * answering to RFC 2518. */
+#define i_class1 (i_level & NE_CAP_DAV_CLASS1)
+#define i_class2 (i_level & NE_CAP_DAV_CLASS2)
+#define i_class3 (i_level & NE_CAP_DAV_CLASS3)
 
 /* Upload htdocs/foo to i_path + path */
 int upload_foo(const char *path);

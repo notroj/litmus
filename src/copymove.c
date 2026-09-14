@@ -103,7 +103,7 @@ static int copy_abspath(void)
     PRECOND(copy_ok);
 
     if (!i_class3) {
-        t_context("server does not claim class 3 compliance");
+        t_context("class 3 is not under test (use --level=3)");
         return SKIP;
     }
 

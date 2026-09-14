@@ -38,8 +38,8 @@ static struct ne_lock reslock, *gotlock = NULL;
 static int precond(void)
 {
     if (!i_class2) {
-	t_context("locking tests skipped,\n"
-		  "server does not claim Class 2 compliance");
+        t_context("locking tests skipped, class 2 is not under test\n"
+                  "(use --level=2 to test locking)");
 	return SKIPREST;
     }
     
