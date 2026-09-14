@@ -368,6 +368,11 @@ static int propfind_returns_wellformed(const char *msg, const char *body)
     ne_add_response_body_reader(req, ne_accept_207, ne_xml_parse_v, p);
     ONMREQ("PROPFIND", prop_uri, ne_request_dispatch(req));
 
+    /* The body reader only runs for a 207, so nothing can be concluded
+     * from the parse result until the status is known. */
+    ONV(STATUS(207),
+        ("PROPFIND %s gave %d, MUST be 207 (RFC4918:S9.1)", msg, GETSTATUS));
+
     ONV(ne_xml_failed(p), ("PROPFIND response %s was not well-formed (RFC4918:S8.2): %s",
                            msg, ne_xml_get_error(p)));
 
