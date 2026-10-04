@@ -76,8 +76,8 @@ In each case _litmus_ exits 0 and reports nothing alarming:
    reachable against a compliant server.
 3. **No Depth-1 PROPFIND exists anywhere in litmus.** `NE_DEPTH_ONE` has zero
    occurrences in `src/`. Every PROPFIND in the tree is Depth 0, which makes
-   9.1-2 half-covered and 9.1-9, 9.1-10, 14.24-1, 8.3-1 and 8.3-3 unreachable
-   as the suites are currently written.
+   9.1-2 half-covered and 9.1-9, 9.1-10, 14.24-1 and 8.3-1 unreachable as the
+   suites are currently written.
 
 ---
 
