@@ -89,6 +89,27 @@ or
 
 ## Test options
 
+By default _litmus_ tests the server against the class 1 and class 2
+requirements of RFC 4918.  Use the `--level` option to test a different
+set of compliance classes; class 1 is always included, since every valid
+combination requires it:
+
+~~~
+ $ litmus --level=1    https://dav.example.com/path/   # class 1 only
+ $ litmus --level=2    https://dav.example.com/path/   # class 1 and 2
+ $ litmus --level=3    https://dav.example.com/path/   # class 1 and 3
+ $ litmus --level=2,3  https://dav.example.com/path/   # classes 1, 2 and 3
+~~~
+
+If the server does not advertise a class which was requested, the
+`options` test fails, but the tests for that class are still run -- so a
+single run answers both whether the `DAV` header is correct and whether
+the behaviour is.  Tests for a class which is not being tested are
+skipped.
+
+Use `--level=auto` to test whichever classes the server advertises in
+its `DAV` header, which never reports such a mismatch.
+
 To use a more compact output format, use the `--quiet` option. By
 default, _litmus_ uses colour in the output if the terminal is a
 TTY. To override the default, use either the `--colour` or

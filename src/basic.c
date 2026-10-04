@@ -150,10 +150,9 @@ static int do_put_get(const char *segment)
     ONV(put_buffer(i_session, uri, test_contents),
 	("PUT of `%s' failed: %s", uri, ne_get_error(i_session)));
     
-    if (STATUS(201)) {
-	t_warning("PUT of new resource gave %d, should be 201",
-		  GETSTATUS);
-    }
+    ONV(STATUS(201),
+        ("PUT to create `%s' gave %d, MUST be 201 (RFC9110:S9.3.4)",
+         uri, GETSTATUS));
 
     fd = mkstemp(tmp);
     BINARYMODE(fd);
@@ -182,16 +181,35 @@ static int put_get_utf8_segment(void)
     return do_put_get("res-%e2%82%ac");
 }
 
+static int put_get_normal(void)
+{
+    return do_put_get("resource.txt");
+}
+
 static int put_no_parent(void)
 {
     char *uri = ne_concat(i_path, "409me/noparent.txt", NULL);
+    char *parent;
+
     ONN("PUT with missing intermediate succeeds",
 	dummy_put(i_session, uri) != NE_ERROR);
 
     ONV(STATUS(409),
         ("PUT with missing intermediate collection gave %d, "
-         "MUST be 409 [RFC4918:S9.7.1]", GETSTATUS));
+         "MUST be 409 (RFC4918:S9.7.1)", GETSTATUS));
 
+    /* The intermediate collection must not have been created. */
+    parent = ne_concat(i_path, "409me/", NULL);
+
+    ONV(do_head(i_session, parent),
+	("HEAD on `%s' failed: %s", parent, ne_get_error(i_session)));
+
+    ONV(STATUS(404),
+        ("PUT created the missing intermediate collection `%s' "
+         "(HEAD gave %d), but the PUT MUST fail (RFC4918:S9.7.1)",
+         parent, GETSTATUS));
+
+    ne_free(parent);
     ne_free(uri);
 
     return OK;
@@ -211,10 +229,10 @@ static int put_location(void)
     ONNREQ("PUT failed", ne_request_dispatch(req));
 
     ONV(ne_get_status(req)->code != 201,
-        ("PUT to create '%s' MUST return 201 (got %d) [RFC9110:S9.3.4]",
+        ("PUT to create '%s' MUST return 201 (got %d) (RFC9110:S9.3.4)",
          put_uri, ne_get_status(req)->code));
 
-    /* PUT to create resource might return Location with 201 [RFC9110:S15.3.2] */
+    /* PUT to create resource might return Location with 201 (RFC9110:S15.3.2) */
     s = ne_get_response_header(req, "Location");
     if (s) {
         ne_uri uri = {0};
@@ -239,7 +257,7 @@ static int mkcol_over_plain(void)
     PRECOND(pg_uri);
 
     ONV(ne_mkcol(i_session, pg_uri) != NE_ERROR,
-	("MKCOL on plain resource `%s' succeeded!", pg_uri));
+	("MKCOL on plain resource `%s' succeeded! (RFC4918:S9.3)", pg_uri));
     
     return OK;
 }
@@ -249,7 +267,15 @@ static int delete(void)
     PRECOND(pg_uri); /* skip if put_get failed. */
 
     ONV(ne_delete(i_session, pg_uri),
-	("DELETE on normal resource failed: %s", ne_get_error(i_session)));
+	("DELETE on normal resource failed (RFC4918:S9.6): %s", ne_get_error(i_session)));
+
+    /* The mapping must be gone once the DELETE has succeeded. */
+    ONV(do_head(i_session, pg_uri),
+	("HEAD on deleted resource failed: %s", ne_get_error(i_session)));
+
+    ONV(STATUS(404),
+	("HEAD on deleted resource gave %d, MUST be 404 (RFC4918:S9.6)",
+	 GETSTATUS));
 
     return OK;
 }
@@ -263,7 +289,7 @@ static int delete_null(void)
 	ne_delete(i_session, uri) != NE_ERROR);
 
     if (STATUS(404)) {
-	t_warning("DELETE on null resource gave %d, should be 404 (RFC2518:S3)",
+	t_warning("DELETE on null resource gave %d, should be 404 (RFC9110:S15.5.5)",
 		  GETSTATUS);
     }
 
@@ -307,12 +333,12 @@ static int mkcol_again(void)
     PRECOND(coll_uri);
 
     ONV(ne_mkcol(i_session, coll_uri) != NE_ERROR,
-        ("MKCOL on existing collection should fail (RFC4918:S9.1), got: %s",
+        ("MKCOL on existing collection should fail (RFC4918:S9.3), got: %s",
          ne_get_error(i_session)));
 
     if (STATUS(405)) {
 	t_warning("MKCOL on existing collection gave %d, should be "
-                  "405 (RFC4918:S9.3.2)", GETSTATUS);
+                  "405 (RFC4918:S9.3.1)", GETSTATUS);
     }
     
     return OK;
@@ -323,25 +349,45 @@ static int delete_coll(void)
     PRECOND(coll_uri);
     
     ONV(ne_delete(i_session, coll_uri),
-	("DELETE on collection `%s': %s", coll_uri, 
+	("DELETE on collection `%s' (RFC4918:S9.6): %s", coll_uri,
 	 ne_get_error(i_session)));
+
+    /* The mapping must be gone once the DELETE has succeeded. */
+    ONV(do_head(i_session, coll_uri),
+	("HEAD on deleted collection failed: %s", ne_get_error(i_session)));
+
+    ONV(STATUS(404),
+	("HEAD on deleted collection `%s' gave %d, MUST be 404 "
+	 "(RFC4918:S9.6)", coll_uri, GETSTATUS));
 
     return OK;
 }
 
 static int mkcol_no_parent(void)
 {
-    char *uri;
+    char *uri, *parent;
 
     uri = ne_concat(i_path, "409me/noparent/", NULL);
 
-    ONN("MKCOL with missing intermediate should fail (RFC4918:9.3)",
+    ONN("MKCOL with missing intermediate should fail (RFC4918:S9.3)",
 	ne_mkcol(i_session, uri) != NE_ERROR);
 
     ONV(STATUS(409),
         ("MKCOL with missing intermediate collection gave %d, "
-         "MUST be 409 [RFC4918:S9.3]", GETSTATUS));
+         "MUST be 409 (RFC4918:S9.3)", GETSTATUS));
 
+    /* The intermediate collection must not have been created. */
+    parent = ne_concat(i_path, "409me/", NULL);
+
+    ONV(do_head(i_session, parent),
+	("HEAD on `%s' failed: %s", parent, ne_get_error(i_session)));
+
+    ONV(STATUS(404),
+        ("MKCOL created the missing intermediate collection `%s' "
+         "(HEAD gave %d), which MUST NOT happen (RFC4918:S9.3.1)",
+         parent, GETSTATUS));
+
+    ne_free(parent);
     ne_free(uri);
 
     return OK;
@@ -367,7 +413,7 @@ static int mkcol_with_body(void)
 	 ne_get_error(i_session)));
 
     ONV(ne_get_status(req)->code != 415,
-        ("MKCOL with weird body must fail, got %d [RFC4918:S9.3)",
+        ("MKCOL with weird body MUST fail, got %d (RFC4918:S9.3)",
          ne_get_status(req)->code));
     
     ne_request_destroy(req);
@@ -379,9 +425,9 @@ ne_test tests[] = {
     INIT_TESTS,
 
     /* Basic tests. */
-    T(options),
     T(put_get),
     T(put_get_utf8_segment),
+    T(put_get_normal),
     T(put_no_parent),
     T(put_location),
     T(mkcol_over_plain),

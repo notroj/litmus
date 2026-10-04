@@ -19,6 +19,9 @@ Options:
  -c, --client-cert=CERT     use given PKCS#12 client cert
  -u, --client-cert-uri=URI  use given client cert URI
  -i, --insecure             ignore TLS certificate verification failures
+ -l, --level=LIST           test the given compliance classes:
+                            1, 2, 3, a comma-separated list of those,
+                            or 'auto' to follow the DAV header
  -q, --quiet                use abbreviated output
  -n, --no-colour            disable colour in output
  -o, --colour               enable colour in output
