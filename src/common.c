@@ -153,6 +153,8 @@ int direct_connect(void)
  * non-zero if the list is malformed. */
 static int parse_level(const char *arg)
 {
+    level_auto = 0;
+
     if (strcmp(arg, "auto") == 0) {
         level_auto = 1;
         return 0;
